@@ -36,7 +36,7 @@ public class PlaceOnPlane : MonoBehaviour
         Touch touch = Input.GetTouch(0);
 
         
-        if (arRaymanager.Raycast(touch.position, hits, TrackableType.PlaneWithinPolygon) && IsPointerOverUiObject(touch.position))
+        if (arRaymanager.Raycast(touch.position, hits, TrackableType.PlaneWithinPolygon)/* && IsPointerOverUiObject(touch.position)*/)
         {
             Pose pose = hits[0].pose;
 
