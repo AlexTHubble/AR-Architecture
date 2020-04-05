@@ -8,7 +8,7 @@ using UnityEngine.EventSystems;
 // POTENTIAL FIX FOR RAYCAST ISSUE
 //https://forum.unity.com/threads/raycasting-objects-by-its-tag-with-arfoundation.578989/
 
-public class InputManager : MonoBehaviour, IPointerClickHandler
+public class InputManager : MonoBehaviour
 {
     GamePiece selectedObject;
 
@@ -17,6 +17,9 @@ public class InputManager : MonoBehaviour, IPointerClickHandler
 
     [SerializeField]
     private ARRaycastManager arRaymanager;
+
+    [SerializeField]
+    OnScreenDebugLogger screenDebugger;
 
     private List<ARRaycastHit> hits = new List<ARRaycastHit>();
 
@@ -79,34 +82,31 @@ public class InputManager : MonoBehaviour, IPointerClickHandler
 
 
         //On tap, raycast, on hit with object, select it 
-        //if (Input.GetTouch(0).phase == TouchPhase.Began)
-        //{
-        //
-        //    // Construct a ray from the current touch coordinates
-        //    Ray ray = Camera.main.ScreenPointToRay(Input.GetTouch(0).position);
-        //
-        //    // Create a particle if hit
-        //
-        //
-        //    if (Physics.Raycast(ray, out RaycastHit hit, LayerMask.GetMask("Interactable")))
-        //    {
-        //
-        //        GameObject objHit = hit.collider.gameObject;
-        //        if (objHit.tag == "GamePeice")
-        //        {
-        //            if (selectedObject != null)
-        //                selectedObject.OnDeselect();
-        //            selectedObject = null;
-        //            selectedObject = gameObject.GetComponent<GamePiece>();
-        //            selectedObject.OnSelect();
-        //        }
-        //    }
-        //}
+        if (Input.GetTouch(0).phase == TouchPhase.Began)
+        {
+        
+            // Construct a ray from the current touch coordinates
+            Ray ray = Camera.main.ScreenPointToRay(Input.GetTouch(0).position);
+        
+            // Create a particle if hit
+        
+        
+            if (Physics.Raycast(ray, out RaycastHit hit, LayerMask.GetMask("Interactable")))
+            {
+        
+                GameObject objHit = hit.collider.gameObject;
+                if (objHit.tag == "GamePeice")
+                {
+                    if (selectedObject != null)
+                        selectedObject.OnDeselect();
+                    selectedObject = null;
+                    selectedObject = gameObject.GetComponent<GamePiece>();
+                    selectedObject.OnSelect();
+                }
+            }
+        }
     }
 
-    public void OnPointerClick(PointerEventData pointerEventData)
-    {
-        
-    }
+
 
 }
