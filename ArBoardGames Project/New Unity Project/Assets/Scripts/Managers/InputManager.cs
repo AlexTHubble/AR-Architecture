@@ -33,80 +33,24 @@ public class InputManager : MonoBehaviour
 
     // Update is called once per frame
     void Update()
-    {
-        TouchBegin();
-        TouchEnd();
-        TouchMove();
-
-        //if(bm.boardActive)
-        //{
-        //    if (selectedObject == null) //Null check to make sure no more than one object is selected
-        //        TouchBegin();
-        //
-        //    if (selectedObject != null)
-        //        TouchMove();
-        //
-        //    if (selectedObject != null)
-        //        TouchEnd();
-        //}
+    { 
     }
 
-    void TouchMove()
+    public bool SelectObject(GameObject obj)
     {
-        //TODO: Move object
+
+        return true;
     }
 
-    void TouchEnd()
+    public void DeSelectObject(GameObject obj)
     {
-        Touch touch = Input.GetTouch(0);
 
-        //RaycastHit hit;
-
-
-        //On tap, raycast, on hit with object, select it 
-        if (Input.GetTouch(0).phase == TouchPhase.Ended)
-        {
-
-            if (selectedObject != null)
-                selectedObject.OnDeselect();
-
-            selectedObject = null;
-        }
     }
 
-    void TouchBegin()
+    public void DeSelectObject()
     {
-        Touch touch = Input.GetTouch(0);
-
-        //RaycastHit hit;
-
-
-        //On tap, raycast, on hit with object, select it 
-        if (Input.GetTouch(0).phase == TouchPhase.Began)
-        {
-        
-            // Construct a ray from the current touch coordinates
-            Ray ray = Camera.main.ScreenPointToRay(Input.GetTouch(0).position);
-        
-            // Create a particle if hit
-        
-        
-            if (Physics.Raycast(ray, out RaycastHit hit, LayerMask.GetMask("Interactable")))
-            {
-        
-                GameObject objHit = hit.collider.gameObject;
-                if (objHit.tag == "GamePeice")
-                {
-                    if (selectedObject != null)
-                        selectedObject.OnDeselect();
-                    selectedObject = null;
-                    selectedObject = gameObject.GetComponent<GamePiece>();
-                    selectedObject.OnSelect();
-                }
-            }
-        }
+        selectedObject = null;
     }
-
 
 
 }

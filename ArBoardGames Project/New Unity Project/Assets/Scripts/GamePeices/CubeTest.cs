@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class CubeTest : MonoBehaviour, IPointerClickHandler
+public class CubeTest : GamePiece, IPointerClickHandler
 {
     [SerializeField]
     Material testMat;
@@ -15,26 +15,23 @@ public class CubeTest : MonoBehaviour, IPointerClickHandler
 
     bool isMat1 = true;
 
-    [SerializeField]
-    OnScreenDebugLogger screenDebugger;
-
-    public void OnPointerClick(PointerEventData pointerEventData)
+    public override void OnPointerClick(PointerEventData pointerEventData)
     {
-        screenDebugger.LogOnscreen(name + "Game object clicked");
+        OnSelect();
     }
 
-    //public override void OnSelect()
-    //{
-    //    if(isMat1)
-    //    {
-    //        mr.material = testMat;
-    //        isMat1 = false;
-    //    }
-    //    else
-    //    {
-    //        mr.material = testMat2;
-    //        isMat1 = true;
-    //    }
-    //    base.OnSelect();
-    //}
+    public override void OnSelect()
+    {
+        if(isMat1)
+        {
+            mr.material = testMat;
+            isMat1 = false;
+        }
+        else
+        {
+            mr.material = testMat2;
+            isMat1 = true;
+        }
+        base.OnSelect();
+    }
 }
