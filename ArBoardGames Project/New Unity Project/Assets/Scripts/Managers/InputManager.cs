@@ -10,10 +10,7 @@ using UnityEngine.EventSystems;
 
 public class InputManager : MonoBehaviour
 {
-    GamePiece selectedObject;
-
-    [SerializeField]
-    BoardManager bm;
+    ARInteractableObject selectedObject;
 
     [SerializeField]
     private ARRaycastManager arRaymanager;

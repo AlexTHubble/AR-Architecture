@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class CubeTest : GamePiece, IPointerClickHandler
+public class CubeTest : ARInteractableObject//, IPointerClickHandler
 {
     [SerializeField]
     Material testMat;
@@ -15,23 +15,10 @@ public class CubeTest : GamePiece, IPointerClickHandler
 
     bool isMat1 = true;
 
-    public override void OnPointerClick(PointerEventData pointerEventData)
+    internal override void OnSelect()
     {
-        OnSelect();
-    }
 
-    public override void OnSelect()
-    {
-        if(isMat1)
-        {
-            mr.material = testMat;
-            isMat1 = false;
-        }
-        else
-        {
-            mr.material = testMat2;
-            isMat1 = true;
-        }
+        screenDebugger.LogOnscreen("Working from override");
         base.OnSelect();
     }
 }

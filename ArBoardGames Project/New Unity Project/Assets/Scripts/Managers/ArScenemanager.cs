@@ -5,7 +5,7 @@ using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
 using UnityEngine.EventSystems;
 
-public class BoardManager : MonoBehaviour
+public class ArScenemanager : MonoBehaviour
 {
     [SerializeField]
     private ARSessionOrigin arSessionOrigin;
