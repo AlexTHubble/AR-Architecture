@@ -4,6 +4,9 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
+
+//A quick on screen debugger to help with android builds
+//TODO: Make this a singleton for ease of use
 public class OnScreenDebugLogger : MonoBehaviour
 {
 
@@ -27,9 +30,6 @@ public class OnScreenDebugLogger : MonoBehaviour
             currentTimer = Time.time + delay;
             UpdateUI();
         }
-
-        //Use this to test if the logger is working
-        //LogOnscreen(Time.time.ToString());
     }
 
     //Displays the top N results (where N is the amount of logger room in the list)

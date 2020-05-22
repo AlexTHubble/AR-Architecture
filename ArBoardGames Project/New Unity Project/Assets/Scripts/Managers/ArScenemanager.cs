@@ -5,6 +5,7 @@ using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
 using UnityEngine.EventSystems;
 
+//This is the manager to keep track of the scene being used for AR
 public class ArScenemanager : MonoBehaviour
 {
     [SerializeField]
