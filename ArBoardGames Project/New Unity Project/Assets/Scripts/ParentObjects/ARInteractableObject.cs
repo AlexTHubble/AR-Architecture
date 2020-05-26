@@ -10,7 +10,7 @@ public class ARInteractableObject : MonoBehaviour, IPointerClickHandler
     protected OnScreenDebugLogger screenDebugger;
 
     [SerializeField]
-    InputManager inputManager;
+    ArScenemanager arSceneManagerObj;
 
     public void OnPointerClick(PointerEventData pointerEventData)
     {
@@ -20,14 +20,14 @@ public class ARInteractableObject : MonoBehaviour, IPointerClickHandler
     //A public wrapper if you want to deselct this object without a refrence of the input manager
     public void DeselectObject()
     {
-        inputManager.DeSelectObject(this);
+        arSceneManagerObj.DeSelectObject(this);
     }
 
     //What will be called when the ray hits this object
     internal virtual void OnSelect()
     {
         screenDebugger.LogOnscreen(name + "Game object clicked");
-        inputManager.SelectObject(this);
+        arSceneManagerObj.SelectObject(this);
     }
 
     //What will be called when the object is deselected

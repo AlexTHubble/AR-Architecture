@@ -942,7 +942,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   screenDebugger: {fileID: 1751455937}
-  inputManager: {fileID: 725877765}
+  arSceneManagerObj: {fileID: 1946469879}
   testMat: {fileID: 2100000, guid: 776dbdc67a2bce949a8c7e51f1cb7c96, type: 2}
   testMat2: {fileID: 2100000, guid: 6e1463c3f4819bc4e909d88cc0f7822a, type: 2}
 --- !u!1 &1199378466
@@ -1582,6 +1582,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   arSessionOrigin: {fileID: 1114040584}
   arRaymanager: {fileID: 1114040582}
+  screenDebugger: {fileID: 0}
   cube: {fileID: 1160806185}
   canvas: {fileID: 1751455932}
   boardActive: 0
