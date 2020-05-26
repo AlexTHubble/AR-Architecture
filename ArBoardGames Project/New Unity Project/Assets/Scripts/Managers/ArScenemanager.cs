@@ -24,7 +24,6 @@ public class ArScenemanager : MonoBehaviour
     
     ARInteractableObject selectedObject = null;
 
-    [SerializeField]
     ARInteractableObject objectToSpawn = null;
 
     [SerializeField]
@@ -45,7 +44,7 @@ public class ArScenemanager : MonoBehaviour
     private bool HandleInput()
     {
         //If the player has no input, there is an object to spawn, and no object is currently selected
-        if (Input.touchCount == 0 && objectToSpawn /*&& !selectedObject*/)
+        if (Input.touchCount == 0 /*&& !objectToSpawn*/)
             return false;
 
         Touch touch = Input.GetTouch(0);
@@ -55,27 +54,25 @@ public class ArScenemanager : MonoBehaviour
         {
             objectToSpawn.SetToActive();
             objectToSpawn = null;
-            screenDebugger.LogOnscreen("Touch ended");
         }
         else //Finger is being held, move the position
         {
-            screenDebugger.LogOnscreen("Being held");
-
             if (arRaymanager.Raycast(touch.position, hits, TrackableType.PlaneWithinPolygon)/* && IsPointerOverUiObject(touch.position)*/)
             {
                 Pose pose = hits[0].pose;
-                screenDebugger.LogOnscreen("Raycast is hitting");
 
                 //Set the gameobject back to active now that it's being place
-                if (!objectToSpawn.gameObject.activeInHierarchy)
-                {
-                    screenDebugger.LogOnscreen("Setting to active");
-                    objectToSpawn.gameObject.SetActive(true);
-                }
+                //if (!objectToSpawn.gameObject.activeInHierarchy)
+                //{
+                //    objectToSpawn.gameObject.SetActive(true);
+                //}
 
                 //Sets the object transform and rotation to the pose postion
-                objectToSpawn.objTransform.position = pose.position;
-                objectToSpawn.objTransform.rotation = pose.rotation;
+                screenDebugger.LogOnscreen("HERE");
+                objectToSpawn.gameObject.transform.position = pose.position;
+                objectToSpawn.gameObject.transform.rotation = pose.rotation;
+                screenDebugger.LogOnscreen("HERE2");
+
             }
         }
 
@@ -120,10 +117,10 @@ public class ArScenemanager : MonoBehaviour
     }
 
     //Sets the object sent in to the object to spawn
-    public void SelectObjectToSpawn(ARInteractableObject prefabToSpawn)
+    public void SelectObjectToSpawn(GameObject prefabToSpawn)
     {
         //Create and spawn in the new object
-        objectToSpawn = Instantiate(prefabToSpawn);
-        objectToSpawn.gameObject.SetActive(false); //Sets the gameobject to not active on first spawn
+        objectToSpawn = Instantiate(prefabToSpawn).GetComponent<ARInteractableObject>();
+        //objectToSpawn.gameObject.SetActive(false); //Sets the gameobject to not active on first spawn
     }
 }
