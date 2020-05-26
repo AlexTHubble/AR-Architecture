@@ -21,11 +21,12 @@ public class ARInteractableObject : MonoBehaviour, IPointerClickHandler
     public MeshRenderer objectMR;
 
     bool canBeInteracted = false;
+    Material defaultMat;
+    Material selectedMat;
 
     private void Start()
     {
-        objTransform = gameObject.transform;
-        objectMR = gameObject.GetComponent<MeshRenderer>();
+        OnStartFunctions();
     }
 
     public void OnPointerClick(PointerEventData pointerEventData)
@@ -38,8 +39,7 @@ public class ARInteractableObject : MonoBehaviour, IPointerClickHandler
     public void SetToActive()
     {
         canBeInteracted = true;
-
-        //TODO: Swap the MR to an active renderer
+        objectMR.material = defaultMat;
     }
 
     //A public wrapper if you want to deselct this object without a refrence of the input manager
@@ -54,6 +54,7 @@ public class ARInteractableObject : MonoBehaviour, IPointerClickHandler
         if (!arSceneManagerObj.SelectObject(this))
             return;
 
+        objectMR.material = selectedMat; //Sets the material to the "selected" material
         screenDebugger.LogOnscreen(name + "Game object clicked");
     }
 
@@ -61,5 +62,18 @@ public class ARInteractableObject : MonoBehaviour, IPointerClickHandler
     internal virtual void OnDeselect()
     {
         screenDebugger.LogOnscreen(name + " deselected");
+        objectMR.material = defaultMat;
+    }
+
+    //Stuff that needs to be called on start
+    internal virtual void OnStartFunctions()
+    {
+        objTransform = gameObject.transform;
+        objectMR = gameObject.GetComponent<MeshRenderer>();
+        //Saves the default mat as the material on the object, then sets the material to the selecting pos mat
+        defaultMat = objectMR.material;
+        objectMR.material = Resources.Load<Material>("Materials/SelectingPosMat");
+        //Load the material for selection
+        selectedMat = Resources.Load<Material>("Materials/SelectedMat");
     }
 }
