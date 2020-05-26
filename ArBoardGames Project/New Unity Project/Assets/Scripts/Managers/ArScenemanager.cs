@@ -10,9 +10,9 @@ using UnityEngine.EventSystems;
 public class ArScenemanager : MonoBehaviour
 {
     /* What is this doing?
- * -This is a script to handle the AR scene, mananging the AR objects, ect.
- * -This wraps all of the AR functions needed in various game objects (such as raycasting, creating planes, ect)
- */
+     * -This is a script to handle the AR scene, mananging the AR objects, ect.
+     * -This wraps all of the AR functions needed in various game objects (such as raycasting, creating planes, ect)
+     */
 
     [SerializeField]
     private ARSessionOrigin arSessionOrigin;
@@ -20,72 +20,82 @@ public class ArScenemanager : MonoBehaviour
     private ARRaycastManager arRaymanager;
 
     private List<ARRaycastHit> hits = new List<ARRaycastHit>();
+    private List<ARInteractableObject> activeObjects = new List<ARInteractableObject>();
+    
+    ARInteractableObject selectedObject = null;
 
-    ARInteractableObject selectedObject;
+    [SerializeField]
+    ARInteractableObject objectToSpawn = null;
 
     [SerializeField]
     OnScreenDebugLogger screenDebugger;
 
-    [SerializeField]
-    GameObject cube;
-    [SerializeField]
-    GameObject canvas;
-
-    [HideInInspector]
-    public bool boardActive = false;
-
     // Start is called before the first frame update
     void Start()
     {
-        //arSessionOrigin = GetComponent<ARSessionOrigin>();
-        //arRaymanager = GetComponent<ARRaycastManager>();
-        cube.SetActive(false);
-        canvas.SetActive(false);
         selectedObject = null;
-
     }
 
     // Update is called once per frame
     void Update()
     {
-        //If the player has no input, break
-        if (Input.touchCount == 0 || boardActive)
-            return;
+        HandleInput();
+    }
+
+    private bool HandleInput()
+    {
+        //If the player has no input, there is an object to spawn, and no object is currently selected
+        if (Input.touchCount == 0 && objectToSpawn /*&& !selectedObject*/)
+            return false;
 
         Touch touch = Input.GetTouch(0);
 
-
-        if (arRaymanager.Raycast(touch.position, hits, TrackableType.PlaneWithinPolygon)/* && IsPointerOverUiObject(touch.position)*/)
+        //Finger has been lifted, set the spawn to yes
+        if(touch.phase == TouchPhase.Ended)
         {
-            Pose pose = hits[0].pose;
+            objectToSpawn.SetToActive();
+            objectToSpawn = null;
+            screenDebugger.LogOnscreen("Touch ended");
+        }
+        else //Finger is being held, move the position
+        {
+            screenDebugger.LogOnscreen("Being held");
 
-            if (!cube.activeInHierarchy)
+            if (arRaymanager.Raycast(touch.position, hits, TrackableType.PlaneWithinPolygon)/* && IsPointerOverUiObject(touch.position)*/)
             {
-                cube.SetActive(true);
-                cube.transform.position = pose.position;
-                cube.transform.rotation = pose.rotation;
+                Pose pose = hits[0].pose;
+                screenDebugger.LogOnscreen("Raycast is hitting");
 
-                canvas.SetActive(true);
-                boardActive = true;
-            }
-            else
-            {
-                cube.transform.position = pose.position;
-                boardActive = true;
+                //Set the gameobject back to active now that it's being place
+                if (!objectToSpawn.gameObject.activeInHierarchy)
+                {
+                    screenDebugger.LogOnscreen("Setting to active");
+                    objectToSpawn.gameObject.SetActive(true);
+                }
+
+                //Sets the object transform and rotation to the pose postion
+                objectToSpawn.objTransform.position = pose.position;
+                objectToSpawn.objTransform.rotation = pose.rotation;
             }
         }
+
+        return true;
     }
 
-    //Select an inputed object
+    //Select an inputed object, returns if the object can be selected or not
     public bool SelectObject(ARInteractableObject obj)
     {
-        //Call on deselect
+        //If the object is a new object, deselcect then set the in object
         if (selectedObject != obj)
         {
             DeSelectObject(selectedObject);
-        }
+            selectedObject = obj;
 
-        selectedObject = obj;
+        }
+        else //If it's clicking on the same object, deselect it
+        {
+            DeSelectObject(selectedObject);
+        }
 
         return true;
     }
@@ -107,5 +117,13 @@ public class ArScenemanager : MonoBehaviour
         selectedObject.OnDeselect();
 
         selectedObject = null;
+    }
+
+    //Sets the object sent in to the object to spawn
+    public void SelectObjectToSpawn(ARInteractableObject prefabToSpawn)
+    {
+        //Create and spawn in the new object
+        objectToSpawn = Instantiate(prefabToSpawn);
+        objectToSpawn.gameObject.SetActive(false); //Sets the gameobject to not active on first spawn
     }
 }

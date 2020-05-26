@@ -649,51 +649,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
---- !u!1 &725877763
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 725877764}
-  - component: {fileID: 725877765}
-  m_Layer: 0
-  m_Name: InputManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &725877764
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 725877763}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 2037257285}
-  m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &725877765
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 725877763}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 83a595ecd02d3254496369fe11c1acc4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  arRaymanager: {fileID: 1114040582}
-  screenDebugger: {fileID: 1751455937}
 --- !u!1 &984170490
 GameObject:
   m_ObjectHideFlags: 0
@@ -941,10 +896,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 18ee1d24232d08647b77532365010d16, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  screenDebugger: {fileID: 1751455937}
   arSceneManagerObj: {fileID: 1946469879}
-  testMat: {fileID: 2100000, guid: 776dbdc67a2bce949a8c7e51f1cb7c96, type: 2}
-  testMat2: {fileID: 2100000, guid: 6e1463c3f4819bc4e909d88cc0f7822a, type: 2}
+  screenDebugger: {fileID: 1751455937}
+  objTransform: {fileID: 0}
+  objectMR: {fileID: 0}
 --- !u!1 &1199378466
 GameObject:
   m_ObjectHideFlags: 0
@@ -1582,10 +1537,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   arSessionOrigin: {fileID: 1114040584}
   arRaymanager: {fileID: 1114040582}
-  screenDebugger: {fileID: 0}
-  cube: {fileID: 1160806185}
-  canvas: {fileID: 1751455932}
-  boardActive: 0
+  objectToSpawn: {fileID: 1160806190}
+  screenDebugger: {fileID: 1751455937}
 --- !u!1 &2037257284
 GameObject:
   m_ObjectHideFlags: 0
@@ -1614,7 +1567,6 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 1946469878}
-  - {fileID: 725877764}
   m_Father: {fileID: 0}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

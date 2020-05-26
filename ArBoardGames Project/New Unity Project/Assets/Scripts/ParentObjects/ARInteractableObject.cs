@@ -7,14 +7,39 @@ using UnityEngine.EventSystems;
 public class ARInteractableObject : MonoBehaviour, IPointerClickHandler
 {
     [SerializeField]
-    protected OnScreenDebugLogger screenDebugger;
+    protected ArScenemanager arSceneManagerObj;
 
     [SerializeField]
-    ArScenemanager arSceneManagerObj;
+    protected OnScreenDebugLogger screenDebugger;
+
+    //Use this to save some time searching for components
+    [HideInInspector]
+    public Transform objTransform;
+
+    //Use this to save some time searching for components
+    [HideInInspector]
+    public MeshRenderer objectMR;
+
+    bool canBeInteracted = false;
+
+    private void Start()
+    {
+        objTransform = gameObject.transform;
+        objectMR = gameObject.GetComponent<MeshRenderer>();
+    }
 
     public void OnPointerClick(PointerEventData pointerEventData)
     {
-        OnSelect();
+        if(canBeInteracted)
+            OnSelect();
+    }
+
+    //In sets the object to active, meaning it can now be interacted with
+    public void SetToActive()
+    {
+        canBeInteracted = true;
+
+        //TODO: Swap the MR to an active renderer
     }
 
     //A public wrapper if you want to deselct this object without a refrence of the input manager
@@ -23,11 +48,13 @@ public class ARInteractableObject : MonoBehaviour, IPointerClickHandler
         arSceneManagerObj.DeSelectObject(this);
     }
 
-    //What will be called when the ray hits this object
+    //What happens when the object is selected
     internal virtual void OnSelect()
     {
+        if (!arSceneManagerObj.SelectObject(this))
+            return;
+
         screenDebugger.LogOnscreen(name + "Game object clicked");
-        arSceneManagerObj.SelectObject(this);
     }
 
     //What will be called when the object is deselected
