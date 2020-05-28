@@ -74,6 +74,7 @@ public class ARInteractableObject : MonoBehaviour, IPointerClickHandler
         defaultMat = objectMR.material;
         objectMR.material = Resources.Load<Material>("Materials/SelectingPosMat");
         //Load the material for selection
-        selectedMat = Resources.Load<Material>("Materials/SelectedMat");
+        selectedMat = Resources.Load<Material>("Materials/SelectedMat"); 
+        
     }
 }

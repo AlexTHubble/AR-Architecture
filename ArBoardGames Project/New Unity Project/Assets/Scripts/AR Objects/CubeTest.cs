@@ -7,6 +7,7 @@ public class CubeTest : ARInteractableObject//, IPointerClickHandler
 {
     internal override void OnSelect()
     {
+        
         base.OnSelect();
         screenDebugger.LogOnscreen("Working from override");
     }
