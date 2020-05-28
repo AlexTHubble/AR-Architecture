@@ -10,6 +10,8 @@ using TMPro;
 public class OnScreenDebugLogger : MonoBehaviour
 {
 
+    public static OnScreenDebugLogger instance = null;
+
     List<string> logList = new List<string>();
 
     [SerializeField]
@@ -21,6 +23,13 @@ public class OnScreenDebugLogger : MonoBehaviour
     //bool isWaiting = false;
     float currentTimer = 0;
 
+    private void Awake()
+    {
+        if (instance == null)
+            instance = this;
+        else if (instance != this)
+            Destroy(gameObject);
+    }
 
     // Update is called once per frame
     void Update()

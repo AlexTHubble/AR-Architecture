@@ -14,6 +14,9 @@ public class ArScenemanager : MonoBehaviour
      * -This wraps all of the AR functions needed in various game objects (such as raycasting, creating planes, ect)
      */
 
+    public static ArScenemanager instance = null;
+
+
     [SerializeField]
     private ARSessionOrigin arSessionOrigin;
     [SerializeField]
@@ -29,8 +32,13 @@ public class ArScenemanager : MonoBehaviour
     bool spawningObject = false;
     bool readyToSpawn = false;
 
-    [SerializeField]
-    OnScreenDebugLogger screenDebugger;
+    private void Awake()
+    {
+        if (instance == null)
+            instance = this;
+        else if (instance != this)
+            Destroy(gameObject);
+    }
 
     // Start is called before the first frame update
     void Start()
@@ -59,7 +67,6 @@ public class ArScenemanager : MonoBehaviour
             objectToSpawn = null;
             spawningObject = false;
             readyToSpawn = false;
-            screenDebugger.LogOnscreen("Touch ended");
         }
         else if(arRaymanager.Raycast(touch.position, hits, TrackableType.PlaneWithinPolygon))//Finger is being held, move the position
         {
@@ -83,16 +90,23 @@ public class ArScenemanager : MonoBehaviour
     //Select an inputed object, returns if the object can be selected or not
     public bool SelectObject(ARInteractableObject obj)
     {
-        //If the object is a new object, deselcect then set the in object
-        if (selectedObject != obj)
-        {
-            DeSelectObject(selectedObject);
-            selectedObject = obj;
+        //Return false if the AR manager is attempting to spawn an object
+        //This is to prevent objects frombeing interacted with while placing one
+        if (spawningObject)
+            return false;
 
+        if(selectedObject == null) //If the object hasn't been set yet
+        {
+            selectedObject = obj;
+        }
+        else if (selectedObject != obj) //If the object is a new object, deselcect then set the in object
+        {
+            DeSelectObject();
+            selectedObject = obj; 
         }
         else //If it's clicking on the same object, deselect it
         {
-            DeSelectObject(selectedObject);
+            DeSelectObject();
         }
 
         return true;
@@ -101,7 +115,7 @@ public class ArScenemanager : MonoBehaviour
     public void DeSelectObject(ARInteractableObject obj) //Checks to see if the object is selected, if so deselect
     {
         //Checks to see if the object is actully selected
-        if (obj != selectedObject)
+        if (obj == selectedObject)
         {
             //Call the on deselect function of the selected object
             selectedObject.OnDeselect();
