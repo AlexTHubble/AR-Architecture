@@ -33,14 +33,18 @@ public class ARInteractableObject : MonoBehaviour, IPointerClickHandler
     Material defaultMat;
     Material selectedMat;
 
+    float clickDelay = 1f;
+    string timerName = "ARInteractableClickDelay";
+
     private void Start()
     {
         OnStartFunctions();
+        timerName = TimerTool.instance.AddTimer(timerName, clickDelay); //Sets up the new timer
     }
 
     public void OnPointerClick(PointerEventData pointerEventData)
     {
-        if(canBeInteracted) //This is a redudent check, but should make things faster when spawning
+        if(canBeInteracted && TimerTool.instance.CheckTimer(timerName)) //This is a redudent check, but should make things faster when spawning
             OnSelect();
     }
 
@@ -64,7 +68,8 @@ public class ARInteractableObject : MonoBehaviour, IPointerClickHandler
             return;
 
         objectMR.material = selectedMat; //Sets the material to the "selected" material
-        //OnScreenDebugLogger.instance.LogOnscreen(name + "Game object clicked");
+        OnScreenDebugLogger.instance.LogOnscreen(name + "Game object clicked");
+        TimerTool.instance.StartTimer(timerName); //Start the delay timer
     }
 
     //What will be called when the object is deselected
@@ -72,6 +77,7 @@ public class ARInteractableObject : MonoBehaviour, IPointerClickHandler
     {
         OnScreenDebugLogger.instance.LogOnscreen(name + " deselected");
         objectMR.material = defaultMat;
+        TimerTool.instance.EndTimer(timerName); //End the delay timer if the object is deselected
     }
 
     //Stuff that needs to be called on start

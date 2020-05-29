@@ -139,7 +139,6 @@ public class TimerTool : MonoBehaviour
         else
         {
             Debug.Log("TimerTool.cs | ERROR: Timer " + name + " not found");
-
         }
     }
 

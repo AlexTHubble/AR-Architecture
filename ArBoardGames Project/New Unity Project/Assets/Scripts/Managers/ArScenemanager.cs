@@ -98,6 +98,7 @@ public class ArScenemanager : MonoBehaviour
         if(selectedObject == null) //If the object hasn't been set yet
         {
             selectedObject = obj;
+
         }
         else if (selectedObject != obj) //If the object is a new object, deselcect then set the in object
         {
