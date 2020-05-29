@@ -74,29 +74,73 @@ public class TimerTool : MonoBehaviour
     //Starts the timer sent in
     public void StartTimer(string name)
     {
-        TimerObj temp = timerDictionary[name];
+        if (timerDictionary.ContainsKey(name))
+        {
+            TimerObj temp = timerDictionary[name];
 
-        temp.finished = false;
-        temp.currentTime = Time.time + temp.timerLength;
+            temp.finished = false;
+            temp.currentTime = Time.time + temp.timerLength;
 
-        timerDictionary[name] = temp;
+            timerDictionary[name] = temp;
+        }
+        else
+        {
+            Debug.Log("TimerTool.cs | ERROR: Timer " + name + " not found");
+        }
     }
 
     //Checks to see if the timer has been finished
     public bool CheckTimer(string name)
     {
-        //If the timer has finished, either though time or if the variable has allready been finished
-        if(timerDictionary[name].currentTime < Time.time || timerDictionary[name].finished)
+        if(timerDictionary.ContainsKey(name))
+        {
+            //If the timer has finished, either though time or if the variable has allready been finished
+            if (timerDictionary[name].currentTime < Time.time || timerDictionary[name].finished)
+            {
+                TimerObj temp = timerDictionary[name];
+                temp.finished = true;
+                temp.currentTime = 0;
+                timerDictionary[name] = temp;
+
+                return true;
+            }
+        }
+        else
+        {
+            Debug.Log("TimerTool.cs | ERROR: Timer " + name + " not found");
+        }
+
+        return false;
+    }
+    
+    //End the timer prematurely
+    public void EndTimer(string name)
+    {
+        if(timerDictionary.ContainsKey(name))
         {
             TimerObj temp = timerDictionary[name];
             temp.finished = true;
             temp.currentTime = 0;
             timerDictionary[name] = temp;
-
-            return true;
         }
+        else
+        {
+            Debug.Log("TimerTool.cs | ERROR: Timer " + name + " not found");
+        }
+    }
 
-        return false;
+    //Remove a timer from the system
+    public void DeleteTimer(string name)
+    {
+        if(timerDictionary.ContainsKey(name))
+        {
+            timerDictionary.Remove(name); 
+        }
+        else
+        {
+            Debug.Log("TimerTool.cs | ERROR: Timer " + name + " not found");
+
+        }
     }
 
 }
