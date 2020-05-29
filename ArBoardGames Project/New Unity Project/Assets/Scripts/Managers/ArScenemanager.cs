@@ -16,7 +16,6 @@ public class ArScenemanager : MonoBehaviour
 
     public static ArScenemanager instance = null;
 
-
     [SerializeField]
     private ARSessionOrigin arSessionOrigin;
     [SerializeField]
@@ -98,16 +97,16 @@ public class ArScenemanager : MonoBehaviour
         if(selectedObject == null) //If the object hasn't been set yet
         {
             selectedObject = obj;
-
         }
         else if (selectedObject != obj) //If the object is a new object, deselcect then set the in object
         {
             DeSelectObject();
-            selectedObject = obj; 
+            selectedObject = obj;
         }
         else //If it's clicking on the same object, deselect it
         {
             DeSelectObject();
+            return false; //Return false sence we're deselecting the object
         }
 
         return true;

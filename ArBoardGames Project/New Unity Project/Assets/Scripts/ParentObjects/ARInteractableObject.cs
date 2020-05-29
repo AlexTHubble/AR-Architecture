@@ -75,9 +75,9 @@ public class ARInteractableObject : MonoBehaviour, IPointerClickHandler
     //What will be called when the object is deselected
     internal virtual void OnDeselect()
     {
-        OnScreenDebugLogger.instance.LogOnscreen(name + " deselected");
         objectMR.material = defaultMat;
-        TimerTool.instance.EndTimer(timerName); //End the delay timer if the object is deselected
+        TimerTool.instance.StartTimer(timerName);
+        OnScreenDebugLogger.instance.LogOnscreen(name + " deselected");
     }
 
     //Stuff that needs to be called on start
