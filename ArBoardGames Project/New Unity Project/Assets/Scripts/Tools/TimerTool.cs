@@ -9,6 +9,7 @@ public class TimerTool : MonoBehaviour
      * It simply takes a target in the time by adding a delay to the time of start, then checks Time.time to see
      * if the time has passed the mark set by the timer. This creates a light weight timer that doesn't require
      * Coroutines.
+     * It's also important to note that this is a singleton pattern.
      * 
      * HOW TO USE
      * Thow this onto a manager object somewhere in the Unity Hirearchy for the singleton to work. 
@@ -19,7 +20,6 @@ public class TimerTool : MonoBehaviour
      * TODO
      * - Make the timer send events when done 
      */
-
 
     struct TimerObj
     {
@@ -40,16 +40,38 @@ public class TimerTool : MonoBehaviour
             Destroy(gameObject);
     }
 
-    //Add a new timer to the tool
-    public void AddTimer(string name, float length)
+    //Add a new timer to the tool, returns the key used
+    public string AddTimer(string name, float length)
     {
         TimerObj newTimer = new TimerObj();
         newTimer.timerLength = length;
-        newTimer.finished = false;
+        newTimer.finished = true; // Set to true as there has been no timer set yet
 
-        timerDictionary.Add(name, newTimer);
+        //This will correct any duplicate names
+        if(timerDictionary.ContainsKey(name))
+        {
+            Debug.Log("TimerTool.cs | WARNING: Duplicate timer added, function will return a new key that isn't duplicate");
+            string newName = name;
+            int i = 0;
+
+            //Keep iterating i untill it hits a number that hasn't been useed
+            while(timerDictionary.ContainsKey(newName))
+            {
+                newName = name + i.ToString();
+                i++;
+            }
+
+            timerDictionary.Add(newName, newTimer);
+            return newName;
+        }
+        else
+        {
+            timerDictionary.Add(name, newTimer);
+            return name;
+        }
     }
 
+    //Starts the timer sent in
     public void StartTimer(string name)
     {
         TimerObj temp = timerDictionary[name];
@@ -60,10 +82,11 @@ public class TimerTool : MonoBehaviour
         timerDictionary[name] = temp;
     }
 
+    //Checks to see if the timer has been finished
     public bool CheckTimer(string name)
     {
-        //If the timer has finished
-        if(timerDictionary[name].currentTime > Time.time)
+        //If the timer has finished, either though time or if the variable has allready been finished
+        if(timerDictionary[name].currentTime < Time.time || timerDictionary[name].finished)
         {
             TimerObj temp = timerDictionary[name];
             temp.finished = true;
