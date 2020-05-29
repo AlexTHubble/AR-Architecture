@@ -21,6 +21,16 @@ public class ARInteractableObject : MonoBehaviour, IPointerClickHandler
      * it can still deselct an object manualy if wanted.
      */
 
+    public enum OBJTYPE
+    {
+        NULL = -1,
+        TAPSELECT = 0, //Selecting this object is on a tap, will deselct when tapped again or another object is selected
+        HOLDSELECT, //Selecting this object is on hold, will deselect on hold off
+        COUNT
+    }
+
+    public OBJTYPE objectType = OBJTYPE.TAPSELECT;
+
     //Use this to save some time searching for components
     [HideInInspector]
     public Transform objTransform;
@@ -80,6 +90,19 @@ public class ARInteractableObject : MonoBehaviour, IPointerClickHandler
         OnScreenDebugLogger.instance.LogOnscreen(name + " deselected");
     }
 
+    //What will be called if the object is being held
+    internal virtual void OnHeld()
+    {
+        OnScreenDebugLogger.instance.LogOnscreen(name + " Held");
+
+    }
+
+    internal virtual void OnHeldMove()
+    {
+        OnScreenDebugLogger.instance.LogOnscreen(name + " Moved");
+
+    }
+
     //Stuff that needs to be called on start
     internal virtual void OnStartFunctions()
     {
@@ -90,6 +113,5 @@ public class ARInteractableObject : MonoBehaviour, IPointerClickHandler
         objectMR.material = Resources.Load<Material>("Materials/SelectingPosMat");
         //Load the material for selection
         selectedMat = Resources.Load<Material>("Materials/SelectedMat"); 
-        
     }
 }

@@ -31,6 +31,9 @@ public class ArScenemanager : MonoBehaviour
     bool spawningObject = false;
     bool readyToSpawn = false;
 
+    string heldTimerName = "TimerHeldTimer";
+    float heldTimerLength = 1f;
+
     private void Awake()
     {
         if (instance == null)
@@ -43,6 +46,7 @@ public class ArScenemanager : MonoBehaviour
     void Start()
     {
         selectedObject = null;
+        TimerTool.instance.AddTimer(heldTimerName, heldTimerLength);
     }
 
     // Update is called once per frame
@@ -53,34 +57,52 @@ public class ArScenemanager : MonoBehaviour
 
     private bool HandleInput()
     {
-        //If the player has no input, there is an object to spawn, and no object is currently selected
-        if (Input.touchCount == 0 && !spawningObject)
+        //If the player has no input
+        if (Input.touchCount == 0)
             return false;
 
         Touch touch = Input.GetTouch(0);
 
-        //Finger has been lifted && it's been placed somewhere, activate the gameobject
-        if(touch.phase == TouchPhase.Ended && readyToSpawn)
+        if (spawningObject) //Logic for spawning an object
         {
-            objectToSpawn.SetToActive();
-            objectToSpawn = null;
-            spawningObject = false;
-            readyToSpawn = false;
-        }
-        else if(arRaymanager.Raycast(touch.position, hits, TrackableType.PlaneWithinPolygon))//Finger is being held, move the position
-        {
-            Pose pose = hits[0].pose;
-
-            //Set the gameobject back to active now that it's being place
-            if (!objectToSpawn.gameObject.activeInHierarchy)
+            //Finger has been lifted && it's been placed somewhere, activate the gameobject
+            if (touch.phase == TouchPhase.Ended && readyToSpawn)
             {
-                objectToSpawn.gameObject.SetActive(true);
-                readyToSpawn = true;
+                objectToSpawn.SetToActive();
+                objectToSpawn = null;
+                spawningObject = false;
+                readyToSpawn = false;
             }
+            else if (arRaymanager.Raycast(touch.position, hits, TrackableType.PlaneWithinPolygon))//Finger is being held, move the position
+            {
+                Pose pose = hits[0].pose;
 
-            //Sets the object transform and rotation to the pose postion
-            objectToSpawn.gameObject.transform.position = pose.position;
-            objectToSpawn.gameObject.transform.rotation = pose.rotation;
+                //Set the gameobject back to active now that it's being place
+                if (!objectToSpawn.gameObject.activeInHierarchy)
+                {
+                    objectToSpawn.gameObject.SetActive(true);
+                    readyToSpawn = true;
+                }
+
+                //Sets the object transform and rotation to the pose postion
+                objectToSpawn.gameObject.transform.position = pose.position;
+                objectToSpawn.gameObject.transform.rotation = pose.rotation;
+            }
+        }
+        else if(selectedObject && selectedObject.objectType == ARInteractableObject.OBJTYPE.HOLDSELECT)
+        {
+            switch(touch.phase) //Call the appopriate functions based on the touch phase
+            {
+                case TouchPhase.Stationary:
+                    selectedObject.OnHeld();
+                    break;
+                case TouchPhase.Moved:
+                    selectedObject.OnHeldMove();
+                    break;
+                case TouchPhase.Ended:
+                    DeSelectObject();
+                    break;
+            }
         }
 
         return true;
@@ -94,22 +116,18 @@ public class ArScenemanager : MonoBehaviour
         if (spawningObject)
             return false;
 
-        if(selectedObject == null) //If the object hasn't been set yet
+        switch(obj.objectType)
         {
-            selectedObject = obj;
-        }
-        else if (selectedObject != obj) //If the object is a new object, deselcect then set the in object
-        {
-            DeSelectObject();
-            selectedObject = obj;
-        }
-        else //If it's clicking on the same object, deselect it
-        {
-            DeSelectObject();
-            return false; //Return false sence we're deselecting the object
+            case ARInteractableObject.OBJTYPE.TAPSELECT:
+                return TapSelectLogic(obj);
+                break;
+            case ARInteractableObject.OBJTYPE.HOLDSELECT:
+                return HoldSelectLogic(obj);
+                break;
         }
 
-        return true;
+        //If we don't get to this point we need to return false
+        return false; 
     }
 
     public void DeSelectObject(ARInteractableObject obj) //Checks to see if the object is selected, if so deselect
@@ -139,5 +157,36 @@ public class ArScenemanager : MonoBehaviour
         objectToSpawn.gameObject.SetActive(false); //Sets the gameobject to not active on first spawn
         spawningObject = true;
 
+    }
+
+    //The logic for tap select, mostly here for readablity
+    private bool TapSelectLogic(ARInteractableObject obj)
+    {
+        if (selectedObject == null) //If the object hasn't been set yet
+        {
+            selectedObject = obj;
+        }
+        else if (selectedObject != obj) //If the object is a new object, deselcect then set the in object
+        {
+            DeSelectObject();
+            selectedObject = obj;
+        }
+        else //If it's clicking on the same object, deselect it
+        {
+            DeSelectObject();
+            return false; //Return false sence we're deselecting the object
+        }
+
+        return true;
+    }
+
+    private bool HoldSelectLogic(ARInteractableObject obj)
+    {
+        // If it's a hold selection object, stay selected untill touch is realeased
+        if (selectedObject == null) //If the object hasn't been set yet
+        {
+            selectedObject = obj;
+        }
+        return true;
     }
 }
