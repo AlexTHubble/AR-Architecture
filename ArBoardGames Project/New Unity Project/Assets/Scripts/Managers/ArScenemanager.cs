@@ -22,9 +22,9 @@ public class ArScenemanager : MonoBehaviour
     private ARRaycastManager arRaymanager;
 
     private List<ARRaycastHit> hits = new List<ARRaycastHit>();
-    private List<ARInteractableObject> activeObjects = new List<ARInteractableObject>();
     
     ARInteractableObject selectedObject = null;
+    ARInteractableObject lastSelectedObject = null; //Used for the "destroy last selected object" function
 
     ARInteractableObject objectToSpawn = null;
 
@@ -104,11 +104,13 @@ public class ArScenemanager : MonoBehaviour
         if (selectedObject == null) //If the object hasn't been set yet
         {
             selectedObject = obj;
+            lastSelectedObject = obj;
         }
         else if (selectedObject != obj) //If the object is a new object, deselcect then set the in object
         {
             DeSelectObject();
             selectedObject = obj;
+            lastSelectedObject = obj;
         }
         else //If it's clicking on the same object, deselect it
         {
@@ -145,6 +147,44 @@ public class ArScenemanager : MonoBehaviour
         objectToSpawn = Instantiate(prefabToSpawn).GetComponent<ARInteractableObject>();
         objectToSpawn.gameObject.SetActive(false); //Sets the gameobject to not active on first spawn
         spawningObject = true;
+    }
 
+    //This will destroy the selected object
+    public void DestroySelectedObject(bool callOnDeselct)
+    {
+        if (!selectedObject)
+            return;
+
+        if (callOnDeselct)
+            selectedObject.OnDeselect();
+
+        GameObject objToDestroy = selectedObject.gameObject;
+        selectedObject = null;
+
+        Destroy(objToDestroy);
+    }
+
+    //Destroy the object passed in
+    public bool DestroyObject(ARInteractableObject obj, bool callOnDeselect)
+    {
+        OnScreenDebugLogger.instance.LogOnscreen("Last selected: " + lastSelectedObject.name);
+
+        if (callOnDeselect)
+            obj.OnDeselect();
+
+        //Deselct the object if it's selected
+        if (obj == selectedObject)
+            selectedObject = null;
+
+        GameObject objToRemove = obj.gameObject;
+        Destroy(objToRemove);
+
+        return true;
+    }
+
+    //Destroys the last active item
+    public void DestroyLastItemTouched()
+    {
+        DestroyObject(lastSelectedObject, true);
     }
 }
