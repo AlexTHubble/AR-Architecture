@@ -1,4 +1,4 @@
-#HUBBLE - AR Architecture 
+# HUBBLE - AR Architecture 
 
 ## What is this?
   This is a basic agumented reality architecture that I intend to use across multiple projects. The main purpose is to allow the user to create  AR objects and override their touch, realease, and held functions easily.
