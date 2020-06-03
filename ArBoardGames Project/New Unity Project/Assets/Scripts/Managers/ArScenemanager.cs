@@ -89,21 +89,6 @@ public class ArScenemanager : MonoBehaviour
                 objectToSpawn.gameObject.transform.rotation = pose.rotation;
             }
         }
-        else if(selectedObject && selectedObject.objectType == ARInteractableObject.OBJTYPE.HOLDSELECT)
-        {
-            switch(touch.phase) //Call the appopriate functions based on the touch phase
-            {
-                case TouchPhase.Stationary:
-                    selectedObject.OnHeld();
-                    break;
-                case TouchPhase.Moved:
-                    selectedObject.OnHeldMove();
-                    break;
-                case TouchPhase.Ended:
-                    DeSelectObject();
-                    break;
-            }
-        }
 
         return true;
     }
@@ -116,18 +101,22 @@ public class ArScenemanager : MonoBehaviour
         if (spawningObject)
             return false;
 
-        switch(obj.objectType)
+        if (selectedObject == null) //If the object hasn't been set yet
         {
-            case ARInteractableObject.OBJTYPE.TAPSELECT:
-                return TapSelectLogic(obj);
-                break;
-            case ARInteractableObject.OBJTYPE.HOLDSELECT:
-                return HoldSelectLogic(obj);
-                break;
+            selectedObject = obj;
+        }
+        else if (selectedObject != obj) //If the object is a new object, deselcect then set the in object
+        {
+            DeSelectObject();
+            selectedObject = obj;
+        }
+        else //If it's clicking on the same object, deselect it
+        {
+            DeSelectObject();
+            return false; //Return false sence we're deselecting the object
         }
 
-        //If we don't get to this point we need to return false
-        return false; 
+        return true;
     }
 
     public void DeSelectObject(ARInteractableObject obj) //Checks to see if the object is selected, if so deselect
@@ -157,36 +146,5 @@ public class ArScenemanager : MonoBehaviour
         objectToSpawn.gameObject.SetActive(false); //Sets the gameobject to not active on first spawn
         spawningObject = true;
 
-    }
-
-    //The logic for tap select, mostly here for readablity
-    private bool TapSelectLogic(ARInteractableObject obj)
-    {
-        if (selectedObject == null) //If the object hasn't been set yet
-        {
-            selectedObject = obj;
-        }
-        else if (selectedObject != obj) //If the object is a new object, deselcect then set the in object
-        {
-            DeSelectObject();
-            selectedObject = obj;
-        }
-        else //If it's clicking on the same object, deselect it
-        {
-            DeSelectObject();
-            return false; //Return false sence we're deselecting the object
-        }
-
-        return true;
-    }
-
-    private bool HoldSelectLogic(ARInteractableObject obj)
-    {
-        // If it's a hold selection object, stay selected untill touch is realeased
-        if (selectedObject == null) //If the object hasn't been set yet
-        {
-            selectedObject = obj;
-        }
-        return true;
     }
 }

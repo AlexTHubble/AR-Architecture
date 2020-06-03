@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 5040922325270613085}
   - component: {fileID: 5040922325270613080}
   m_Layer: 8
-  m_Name: TestCube
+  m_Name: TestCubeTap
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -108,7 +108,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 18ee1d24232d08647b77532365010d16, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  arSceneManagerObj: {fileID: 0}
-  screenDebugger: {fileID: 0}
+  objectType: 0
   objTransform: {fileID: 0}
   objectMR: {fileID: 0}
