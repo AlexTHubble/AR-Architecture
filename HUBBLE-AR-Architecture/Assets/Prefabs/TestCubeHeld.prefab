@@ -12,9 +12,9 @@ GameObject:
   - component: {fileID: 5040922325270613083}
   - component: {fileID: 5040922325270613082}
   - component: {fileID: 5040922325270613085}
-  - component: {fileID: 5040922325270613080}
+  - component: {fileID: 1219003074161625967}
   m_Layer: 8
-  m_Name: TestCube
+  m_Name: TestCubeHeld
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -96,7 +96,7 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &5040922325270613080
+--- !u!114 &1219003074161625967
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -105,9 +105,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 5040922325270613087}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 18ee1d24232d08647b77532365010d16, type: 3}
+  m_Script: {fileID: 11500000, guid: b653c2c0d8ec7b540bba4ff7772be52d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   objectType: 1
   objTransform: {fileID: 0}
   objectMR: {fileID: 0}
+  movementPerTouchPixelMovement: 0.1

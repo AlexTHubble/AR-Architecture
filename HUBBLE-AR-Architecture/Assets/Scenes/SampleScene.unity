@@ -2171,6 +2171,14 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 6838515337162288542, guid: b3c9be7484cec4d4c96c2ec3ba7c72fb, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 43.8
+      objectReference: {fileID: 0}
+    - target: {fileID: 6838515338194022352, guid: b3c9be7484cec4d4c96c2ec3ba7c72fb, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -68.2
+      objectReference: {fileID: 0}
     - target: {fileID: 6838515338499303112, guid: b3c9be7484cec4d4c96c2ec3ba7c72fb, type: 3}
       propertyPath: m_Name
       value: OnScreenLogger
