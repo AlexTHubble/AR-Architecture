@@ -48,20 +48,25 @@ public class ARInteractableObject : MonoBehaviour, IPointerClickHandler, IPointe
 
     bool selected = false;
 
+    //Use this in the virtual fucntions for various reasons
+    protected Touch currentTouch;
+
     private void Start()
     {
         OnStartFunctions();
         timerName = TimerTool.instance.AddTimer(timerName, clickDelay); //Sets up the new timer
     }
 
-    public void OnPointerClick(PointerEventData pointerEventData)
+    public void OnPointerClick(PointerEventData pointerEventData) // Triggers ONCE at the end of press (finger release)
     {
         if(canBeInteracted && TimerTool.instance.CheckTimer(timerName) && objectType == OBJTYPE.TAPSELECT) //This is a redudent check, but should make things faster when spawning
+        {
             OnSelect();
+        }
 
     }
 
-    public void OnPointerDown(PointerEventData pointerEventData)
+    public void OnPointerDown(PointerEventData pointerEventData) //Called continuesly while finger is on the object
     {
         OnScreenDebugLogger.instance.LogOnscreen("POINTER DOWN IS BEING CALLED");
 
@@ -95,11 +100,14 @@ public class ARInteractableObject : MonoBehaviour, IPointerClickHandler, IPointe
         ArScenemanager.instance.DeSelectObject(this);
     }
 
-    //What happens when the object is selected
+    //What happens when the object is selected, use this override in children
     internal virtual void OnSelect()
     {
         if (!ArScenemanager.instance.SelectObject(this)) //Checks to see if it can be selected
             return;
+
+        if (Input.touchCount != 0)
+            currentTouch = Input.GetTouch(0); //If there is a touch, get it here
 
         objectMR.material = selectedMat; //Sets the material to the "selected" material
         OnScreenDebugLogger.instance.LogOnscreen(name + "Game object clicked");
@@ -108,7 +116,7 @@ public class ARInteractableObject : MonoBehaviour, IPointerClickHandler, IPointe
         selected = true;
     }
 
-    //What will be called when the object is deselected
+    //What will be called when the object is deselected, use this override in children
     internal virtual void OnDeselect()
     {
         objectMR.material = defaultMat;
@@ -118,14 +126,16 @@ public class ARInteractableObject : MonoBehaviour, IPointerClickHandler, IPointe
         selected = false;
     }
 
-    //What will be called if the object is being held
+    //What will be called if the object is being held, use this override in children
     internal virtual void OnHeld()
     {
         OnScreenDebugLogger.instance.LogOnscreen(name + " Held");
 
+        if (Input.touchCount != 0)
+            currentTouch = Input.GetTouch(0); //If there is a touch, get it here
     }
 
-    //Stuff that needs to be called on start
+    //Stuff that needs to be called on start, use this override in children
     internal virtual void OnStartFunctions()
     {
         objTransform = gameObject.transform;
