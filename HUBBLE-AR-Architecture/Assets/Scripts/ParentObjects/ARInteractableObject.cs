@@ -54,7 +54,18 @@ public class ARInteractableObject : MonoBehaviour, IPointerClickHandler, IPointe
         timerName = TimerTool.instance.AddTimer(timerName, clickDelay); //Sets up the new timer
     }
 
+<<<<<<< HEAD
     public void OnPointerClick(PointerEventData pointerEventData)
+=======
+    private void Update()
+    {
+        if(objectType == OBJTYPE.HOLDSELECT && selected) //Call on held while it's selected 
+            OnHeld();
+
+    }
+
+    public void OnPointerClick(PointerEventData pointerEventData) // Triggers ONCE at the end of press (finger release)
+>>>>>>> 489b90f... Fixed an architecture issue with on hold
     {
         if(canBeInteracted && TimerTool.instance.CheckTimer(timerName) && objectType == OBJTYPE.TAPSELECT) //This is a redudent check, but should make things faster when spawning
             OnSelect();
@@ -63,15 +74,12 @@ public class ARInteractableObject : MonoBehaviour, IPointerClickHandler, IPointe
 
     public void OnPointerDown(PointerEventData pointerEventData)
     {
-        OnScreenDebugLogger.instance.LogOnscreen("POINTER DOWN IS BEING CALLED");
-
+        OnScreenDebugLogger.instance.LogOnscreen("Time: " + Time.time.ToString());
         //If the object is hold select and can be interacted
         if(canBeInteracted && objectType == OBJTYPE.HOLDSELECT)
         {
             if (!selected) //Select the object on the first moment of being held
                 OnSelect();
-
-            OnHeld();
         }
     }
 
@@ -102,7 +110,7 @@ public class ARInteractableObject : MonoBehaviour, IPointerClickHandler, IPointe
             return;
 
         objectMR.material = selectedMat; //Sets the material to the "selected" material
-        OnScreenDebugLogger.instance.LogOnscreen(name + "Game object clicked");
+        //OnScreenDebugLogger.instance.LogOnscreen(name + "Game object clicked");
         TimerTool.instance.StartTimer(timerName); //Start the delay timer
 
         selected = true;
@@ -113,7 +121,7 @@ public class ARInteractableObject : MonoBehaviour, IPointerClickHandler, IPointe
     {
         objectMR.material = defaultMat;
         TimerTool.instance.StartTimer(timerName);
-        OnScreenDebugLogger.instance.LogOnscreen(name + " deselected");
+        //OnScreenDebugLogger.instance.LogOnscreen(name + " deselected");
 
         selected = false;
     }
@@ -121,7 +129,7 @@ public class ARInteractableObject : MonoBehaviour, IPointerClickHandler, IPointe
     //What will be called if the object is being held
     internal virtual void OnHeld()
     {
-        OnScreenDebugLogger.instance.LogOnscreen(name + " Held");
+        //OnScreenDebugLogger.instance.LogOnscreen(name + " Held");
 
     }
 
