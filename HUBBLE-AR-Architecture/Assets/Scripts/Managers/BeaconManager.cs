@@ -3,14 +3,16 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class BeaconManager : MonoBehaviour
 {
-    enum SetupSteps
+    public enum SetupSteps
     {
         NULL = -1,
         GETDEFAULTROT,
-        LOOKINGATBEACON,
+        SEARCHINGFORUNINTEDBEACON,
+        INITBEACON,
         FINISHED
     }
 
@@ -21,50 +23,103 @@ public class BeaconManager : MonoBehaviour
     Gyroscope gyro;
     Quaternion baseLookRot; //The look rotation inited with the program, we will compare the 
 
-    //private List<Beacon> enabledBeacons = new List<Beacon>(); //List of currently found beacons (within 10 seconds)
-
     [SerializeField]
     List<BeaconSpawnObject> beaconObjects = new List<BeaconSpawnObject>();
-    //KEY: Beacon UUID | this is just for quick find since dictionarys don't play nice with being Serialized
+
+    //KEY: Beacon UUID | this is just for quick find since dictionarys don't like being Serialized
     Dictionary<string, BeaconSpawnObject> beaconObjectDictionary = new Dictionary<string, BeaconSpawnObject>();
+    
+    BeaconSpawnObject lastUnitedBeaconFound; //This is the last beacon found
+
+    [Header("UI Elements")]
+    [SerializeField]
+    Canvas canvas_FindDefaultRot;
+    [SerializeField]
+    Canvas canvas_SearchingForBeacon;
+    [SerializeField]
+    TextMeshProUGUI tmp_FoundBeaconCount;
+    [SerializeField]
+    Button btn_InitBeaconButton;
+    [SerializeField]
+    Canvas canvas_InitBeacon;
+
+    List<Canvas> allCanvas = new List<Canvas>();
 
     // Start is called before the first frame update
     void Start()
     {
         gyroEnabled = EnableGyro();
         InitDictionary();
+        InitAllCanvas();
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+        HandleBeaconStateLogic();
     }
 
-    void SetupBeacon()
+    /*  STATE PROGRESSION 
+     *  1. Something external calls either setup or start. 
+     *      1a. If calls start we'll swap straight to SEARCHINGFORUNINTEDBEACON.
+     *      1b. If calls setup we'll swap to GETDEFAULTROT and init the canvas used for getting the default rotation
+     *  2. GETDEFAULTROT: Get's the default rotation of the phone. This is saved inside a JSON File for future use. 
+     *     Once this is compleated go to step 3
+     *  3. SEARCHINGFORUNINTEDBEACON: Our default state, this searches for uninited beacons then prompts the user to init the beacon.
+     *      3a. If a beacon is found this way, show an alert on screen and prompt the user to init it
+     *      3b. Once a user hit's the Init Beacon button, init the last beacon found
+     *  4. INITBEACON: Setup the canvas and wait for the button press to confirm the user inited the beacon, once this is done
+     *     move back to SEARCHINGFORUNINTEDBEACON (step 3).
+     */
+    void HandleBeaconStateLogic()
     {
         switch(currentSetupStep)
         {
             case SetupSteps.NULL:
                 return;
                 break;
-            case SetupSteps.GETDEFAULTROT:
-                //1. Display button
+            case SetupSteps.SEARCHINGFORUNINTEDBEACON:
+                //This is our default state for the manager, if it's not activly setting up a beacon it's searching for any that may not
+                //be initialized yet
 
-                //2. Wait for button call to swap setup step
+                bool found = false;
+                int count = 0;
 
-                break;
-            case SetupSteps.LOOKINGATBEACON:
-                //1. Display button
-                foreach(BeaconSpawnObject bso in beaconObjects)
+                foreach (BeaconSpawnObject bso in beaconObjects)
                 {
-                    if(bso.beaconEnabled && bso.inited)
+                    if (bso.beaconEnabled && !bso.inited)
                     {
-
+                        lastUnitedBeaconFound = bso;
+                        found = true;
+                        count++;
                     }
                 }
 
-                //2. wait for the button call to swap step
+                if (found)
+                {
+                    /* We found a beacon that needs to be inited, push a notification onto the default canvas.
+                     * The next step is started though a button press by the user
+                     * 
+                     * This will only count the last beacon found, once the inited progress is done we'll return to this
+                     * default state and search again
+                     */
+
+                    tmp_FoundBeaconCount.text = count.ToString();
+                    btn_InitBeaconButton.enabled = true; //Enable the beacon
+                }
+                else
+                {
+                    tmp_FoundBeaconCount.text = "0";
+                    btn_InitBeaconButton.enabled = false; //Enable the beacon
+                }
+
+                break;
+
+            case SetupSteps.GETDEFAULTROT:
+                //This state is handled entirly in the buttons, there isn't any code that needs run on update
+                break;
+
+            case SetupSteps.INITBEACON:
 
                 break;
         }
@@ -77,7 +132,6 @@ public class BeaconManager : MonoBehaviour
             gyro = Input.gyro;
             gyro.enabled = true;
             return true;
-
         }
         return false;
     }
@@ -92,7 +146,37 @@ public class BeaconManager : MonoBehaviour
                 beaconObjectDictionary.Add(bso.beaconUUID, bso);
             }
         }
+    }
 
+    //This is just so I have an easy way to disable all the canvas without having a bunch of code every time I swap to a new canvas
+    void InitAllCanvas()
+    {
+        allCanvas.Add(canvas_FindDefaultRot);
+        allCanvas.Add(canvas_SearchingForBeacon);
+        allCanvas.Add(canvas_InitBeacon);
+    }
+
+    //Disables all the canvas
+    void DisableAllCanvas()
+    {
+        foreach (Canvas canvas in allCanvas)
+            canvas.enabled = false;
+    }
+
+    //Swap the currently enabled canvas to the one passed in
+    void SwapCanvas(Canvas canvasToSwapTo)
+    {
+        foreach(Canvas canvas in allCanvas)
+        {
+            if(canvas == canvasToSwapTo)
+            {
+                canvas.enabled = true;
+            }
+            else
+            {
+                canvas.enabled = false;
+            }
+        }
     }
 
     //We're calculating this based on the beacon's distance and the angle between the current look rot and the base
@@ -110,7 +194,7 @@ public class BeaconManager : MonoBehaviour
 
     //This event is called when a beacon's status is updated, this keeps track of all the current beacons in the list
     private void OnBeaconRangeChanged(Beacon[] beacons)
-    { // 
+    {  
         foreach (Beacon b in beacons)
         {
             //Beacon was found & has an object to spawn. Enable the beacon
@@ -131,28 +215,59 @@ public class BeaconManager : MonoBehaviour
         }
     }
 
-    public void SetLookRotToCurrentGyro()
-    {
-        baseLookRot = gyro.attitude * new Quaternion(0, 0, 1, 0);
-    }
+    //------------------------------------------------------------------------------------------------------
+    //--------------------------------------UI BUTTON FUNCTIONS---------------------------------------------
+    //------------------------------------------------------------------------------------------------------
 
-    public void btn_BeginBeaconSetup()
+    //Swap the state of the manager
+    public void btnFunction_SwapState(SetupSteps stepToSwapTo)
     {
-        currentSetupStep = SetupSteps.GETDEFAULTROT;
-    }
+        currentSetupStep = stepToSwapTo;
 
-    public void btn_GetDefaultRotation(Button buttonPressed)
-    {
-        if(gyroEnabled)
+        switch(stepToSwapTo)
         {
-            baseLookRot = gyro.attitude;
-            currentSetupStep = SetupSteps.LOOKINGATBEACON;
-            buttonPressed.gameObject.SetActive(false); //turn off the button once this phase is done
+            case SetupSteps.INITBEACON:
+                SwapCanvas(canvas_InitBeacon);
+                break;
+            case SetupSteps.GETDEFAULTROT:
+                SwapCanvas(canvas_FindDefaultRot); 
+                break;
+            case SetupSteps.SEARCHINGFORUNINTEDBEACON:
+                SwapCanvas(canvas_SearchingForBeacon);
+                break;
         }
     }
 
-    public void btn_LookingAtBeacon(Button buttonPressed)
+    //Get the default rotation
+    public void btnFunction_GetDefaultRotation()
     {
+        if(gyroEnabled)
+        {
+            baseLookRot = gyro.attitude * new Quaternion(0, 0, 1, 0); //Set the base look rot 
+        }
+        else
+        {
+            OnScreenDebugLogger.instance.LogOnscreen("GYRO NOT ENABLED");
+        }
 
+        btnFunction_SwapState(SetupSteps.SEARCHINGFORUNINTEDBEACON);
+    }
+
+    //Button function to init the beacon, sets position, look rot, and then spawns the object
+    public void btnFunction_InitBeacon()
+    {
+        if (gyroEnabled)
+        {
+            lastUnitedBeaconFound.beaconPosition = CalculateBeaconLocation(lastUnitedBeaconFound.theBeacon);
+            lastUnitedBeaconFound.inited = true;
+            lastUnitedBeaconFound.lookRot = gyro.attitude * new Quaternion(0, 0, 1, 0);
+            lastUnitedBeaconFound.SpawnObject();
+        }
+        else
+        {
+            OnScreenDebugLogger.instance.LogOnscreen("GYRO NOT ENABLED");
+        }
+
+        btnFunction_SwapState(SetupSteps.SEARCHINGFORUNINTEDBEACON);
     }
 }

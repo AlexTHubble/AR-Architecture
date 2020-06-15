@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "Data", menuName = "ScriptableObjects/BeaconSpawnObject", order = 1)]
+[CreateAssetMenu(fileName = "BeaconSpawnObject", menuName = "ScriptableObjects/BeaconSpawnObject", order = 1)]
 public class BeaconSpawnObject : ScriptableObject
 {
     public string beaconUUID; //The id of the beacon that this object is tied to
+    public string beaconName; //This is an english name for the beacon name to make things easier for the end user
     public GameObject prefabToSpawn; //The gameobject that will spawn at the location
 
     [HideInInspector]
@@ -22,4 +23,10 @@ public class BeaconSpawnObject : ScriptableObject
     public bool beaconEnabled = false;
     [HideInInspector]
     public Beacon theBeacon;
+
+
+    public void SpawnObject()
+    {
+        spawnedObject = Instantiate(prefabToSpawn, beaconPosition, Quaternion.identity, null);
+    }
 }
