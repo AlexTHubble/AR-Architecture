@@ -2,37 +2,72 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class BeaconManager : MonoBehaviour
 {
-    struct initedBeacon
+    enum SetupSteps
     {
-        string beaconUUID;
-        GameObject gameObjectToSpawn;
-        Vector3 location;
-        bool inited;
+        NULL = -1,
+        GETDEFAULTROT,
+        LOOKINGATBEACON,
+        FINISHED
     }
+
+    SetupSteps currentSetupStep = SetupSteps.NULL;
 
     //We're useing the phone's gyroscope to help get the exact position of the beacons
     bool gyroEnabled = false;
     Gyroscope gyro;
     Quaternion baseLookRot; //The look rotation inited with the program, we will compare the 
 
-    private List<Beacon> mybeacons = new List<Beacon>(); //List of currently found beacons (within 10 seconds)
+    //private List<Beacon> enabledBeacons = new List<Beacon>(); //List of currently found beacons (within 10 seconds)
 
     [SerializeField]
-    List<initedBeacon> initedBeacons;
+    List<BeaconSpawnObject> beaconObjects = new List<BeaconSpawnObject>();
+    //KEY: Beacon UUID | this is just for quick find since dictionarys don't play nice with being Serialized
+    Dictionary<string, BeaconSpawnObject> beaconObjectDictionary = new Dictionary<string, BeaconSpawnObject>();
 
     // Start is called before the first frame update
     void Start()
     {
         gyroEnabled = EnableGyro();
+        InitDictionary();
     }
 
     // Update is called once per frame
     void Update()
     {
         
+    }
+
+    void SetupBeacon()
+    {
+        switch(currentSetupStep)
+        {
+            case SetupSteps.NULL:
+                return;
+                break;
+            case SetupSteps.GETDEFAULTROT:
+                //1. Display button
+
+                //2. Wait for button call to swap setup step
+
+                break;
+            case SetupSteps.LOOKINGATBEACON:
+                //1. Display button
+                foreach(BeaconSpawnObject bso in beaconObjects)
+                {
+                    if(bso.beaconEnabled && bso.inited)
+                    {
+
+                    }
+                }
+
+                //2. wait for the button call to swap step
+
+                break;
+        }
     }
 
     bool EnableGyro()
@@ -47,8 +82,21 @@ public class BeaconManager : MonoBehaviour
         return false;
     }
 
+    void InitDictionary()
+    {
+        //Add each object in the list to the dictionary
+        foreach(BeaconSpawnObject bso in beaconObjects)
+        {
+            if(bso.beaconUUID != "-1")
+            {
+                beaconObjectDictionary.Add(bso.beaconUUID, bso);
+            }
+        }
+
+    }
+
     //We're calculating this based on the beacon's distance and the angle between the current look rot and the base
-    private void CalculateBeaconLocation(Beacon beacon)
+    private Vector3 CalculateBeaconLocation(Beacon beacon)
     {
         Quaternion currentLookRot = gyro.attitude * new Quaternion(0, 0, 1, 0);
 
@@ -57,7 +105,7 @@ public class BeaconManager : MonoBehaviour
         //X = Distance * cos(angle) || Y = Distance * sin(angle) || z = 0
         Vector3 beaconPosition = new Vector3((float)(beacon.accuracy * Math.Cos(angle)), (float)(beacon.accuracy * Math.Sin(angle)), 0);
 
-
+        return beaconPosition;
     }
 
     //This event is called when a beacon's status is updated, this keeps track of all the current beacons in the list
@@ -65,21 +113,20 @@ public class BeaconManager : MonoBehaviour
     { // 
         foreach (Beacon b in beacons)
         {
-            var index = mybeacons.IndexOf(b);
-            if (index == -1)
+            //Beacon was found & has an object to spawn. Enable the beacon
+            if (beaconObjectDictionary.ContainsKey(b.UUID))
             {
-                mybeacons.Add(b);
-            }
-            else
-            {
-                mybeacons[index] = b;
+                BeaconSpawnObject bso = beaconObjectDictionary[b.UUID];
+                bso.theBeacon = b;
+                bso.beaconEnabled = true; 
             }
         }
-        for (int i = mybeacons.Count - 1; i >= 0; --i)
+        foreach(BeaconSpawnObject bso in beaconObjects)
         {
-            if (mybeacons[i].lastSeen.AddSeconds(10) < DateTime.Now)
+            //If there is a beacon, it's enabled, and it hasn't been seen for 10 seconds. Disable it
+            if(bso.theBeacon != null && bso.beaconEnabled && bso.theBeacon.lastSeen.AddSeconds(10) < DateTime.Now)
             {
-                mybeacons.RemoveAt(i);
+                bso.beaconEnabled = false;
             }
         }
     }
@@ -87,5 +134,25 @@ public class BeaconManager : MonoBehaviour
     public void SetLookRotToCurrentGyro()
     {
         baseLookRot = gyro.attitude * new Quaternion(0, 0, 1, 0);
+    }
+
+    public void btn_BeginBeaconSetup()
+    {
+        currentSetupStep = SetupSteps.GETDEFAULTROT;
+    }
+
+    public void btn_GetDefaultRotation(Button buttonPressed)
+    {
+        if(gyroEnabled)
+        {
+            baseLookRot = gyro.attitude;
+            currentSetupStep = SetupSteps.LOOKINGATBEACON;
+            buttonPressed.gameObject.SetActive(false); //turn off the button once this phase is done
+        }
+    }
+
+    public void btn_LookingAtBeacon(Button buttonPressed)
+    {
+
     }
 }
