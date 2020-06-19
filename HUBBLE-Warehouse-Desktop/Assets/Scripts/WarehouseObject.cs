@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class WarehouseObject : MonoBehaviour
 {
@@ -10,6 +11,8 @@ public class WarehouseObject : MonoBehaviour
     public Transform objTransform;
 
     private BoxCollider2D objCollider;
+
+    bool held = false;
 
     // Start is called before the first frame update
     void Start()
@@ -21,17 +24,20 @@ public class WarehouseObject : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        CheckForMouseInput();
+        if(held)
+        {
+            Vector3 newpos = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, 10));
+            objTransform.position = newpos;
+        }
     }
 
-    private void CheckForMouseInput()
+    void OnMouseDown()
     {
-        Vector2 mousePos = Input.mousePosition;
+        held = true;
+    }
 
-        //Mouse is down and within the bounds of the collider
-        if(Input.GetMouseButtonDown(0) && objCollider.bounds.Contains(mousePos))
-        {
-            //TODO: ON click functionality
-        }
+    void OnMouseUp()
+    {
+        held = false;
     }
 }
