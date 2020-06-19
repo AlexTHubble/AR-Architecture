@@ -2128,9 +2128,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Create Warehouse
-
-'
+  m_text: Create Object
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -2788,9 +2786,9 @@ MonoBehaviour:
   warehousePrefab: {fileID: 0}
   warehouseXDimInput: {fileID: 568215385}
   warehouseYDimInput: {fileID: 576841280}
-  boxXDimInput: {fileID: 0}
-  boxYDimInput: {fileID: 0}
-  itemKeyInput: {fileID: 0}
+  boxXDimInput: {fileID: 610174279}
+  boxYDimInput: {fileID: 1368857337}
+  itemKeyInput: {fileID: 944972764}
   defaultCanvasName: DefaultCanvas
   itemCreationCanvasName: ObjectCreationCanvas
   warehouseCreationCanvasName: MainMenuCanvas
@@ -4621,7 +4619,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1676014694
 RectTransform:
   m_ObjectHideFlags: 0
@@ -4694,7 +4692,7 @@ Canvas:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1676014693}
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 3
   m_RenderMode: 0
   m_Camera: {fileID: 0}
