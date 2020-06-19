@@ -4,35 +4,50 @@ using UnityEngine;
 using GoogleSheetsToUnity.ThirdPary;
 using GoogleSheetsToUnity;
 using UnityEngine.UI;
+using TMPro;
 
 public class WarehouseManager : MonoBehaviour
 {
     [SerializeField]
     GameObject blankWarehouseObjectPrefab;
 
+    [SerializeField]
+    GameObject warehousePrefab;
+
     Vector3 warehouseDimensions;
     Vector3 startingLocation;
+    GameObject currentWarehouseObject;
 
     Dictionary<string, WarehouseObject> objectsInWarehouse = new Dictionary<string, WarehouseObject>();
 
     [SerializeField]
-    Canvas defaultCanvas;
+    TMP_InputField warehouseXDimInput;
     [SerializeField]
-    Canvas createNewWarehouseCanvas;
+    TMP_InputField warehouseYDimInput;
+    [SerializeField]
+    TMP_InputField boxXDimInput;
+    [SerializeField]
+    TMP_InputField boxYDimInput;
+    [SerializeField]
+    TMP_InputField itemKeyInput;
 
+    [Header("Canvas used")]
     [SerializeField]
-    InputField warehouseXInput;
+    string defaultCanvasName;
     [SerializeField]
-    InputField warehouseYInput;
+    string itemCreationCanvasName;
     [SerializeField]
-    InputField objectXSize;
-    [SerializeField]
-    InputField objectYSize;
+    string warehouseCreationCanvasName;
 
     [HideInInspector]
     public string associatedSheet = "1sU_NTS7lvoqh7xFopYs5qJbZ5iG79CevaVdwUh6-DQw";
     [HideInInspector]
-    public string associatedWorksheet = "Warehouse Items";
+    public string warehouseItemsWorksheet = "Warehouse Items";
+    [HideInInspector]
+    public string warehouseInfoWorksheet = "Warehouse Info";
+
+    float warehouseXDim, warehouseYDim;
+
 
     // Start is called before the first frame update
     void Start()
@@ -46,7 +61,7 @@ public class WarehouseManager : MonoBehaviour
         
     }
 
-    private void ImportWarehouseData(GstuSpreadSheet sheet)
+    private void ImportWarehouseInventoryData(GstuSpreadSheet sheet)
     {
         foreach (var warehouseUUID in sheet.columns["UUID"])
         {
@@ -71,33 +86,89 @@ public class WarehouseManager : MonoBehaviour
         }
     }
 
-    private void UpdateWarehouseData(GstuSpreadSheet sheet)
+    private void CreateWarehouseInfo(GstuSpreadSheet sheet)
     {
         BatchRequestBody updateRequest = new BatchRequestBody();
 
-        foreach (KeyValuePair<string, WarehouseObject> pair in objectsInWarehouse)
-        {
-            //Add the updated data to the bach request
-            updateRequest.Add(sheet[pair.Key, "Position"].AddCellToBatchUpdate(associatedSheet,
-                associatedWorksheet, pair.Value.objTransform.position.ToString()));
-        }
+        updateRequest.Add(sheet["A2"].AddCellToBatchUpdate(associatedSheet, warehouseInfoWorksheet, warehouseXDim.ToString()));
+        updateRequest.Add(sheet["B2"].AddCellToBatchUpdate(associatedSheet, warehouseInfoWorksheet, warehouseYDim.ToString()));
 
-        //Send the request
-        updateRequest.Send(associatedSheet, associatedWorksheet, null);
+        updateRequest.Send(associatedSheet, warehouseInfoWorksheet, null);
+    }
+
+    private void LoadWarehouseInfo(GstuSpreadSheet sheet)
+    {
+        warehouseYDim = float.Parse(sheet["A2"].value);
+        warehouseXDim = float.Parse(sheet["B2"].value);
+    }
+
+    private void CreateWarehouseBounds()
+    {
+        currentWarehouseObject = Instantiate(warehousePrefab);
+        currentWarehouseObject.transform.localScale = new Vector2(warehouseXDim, warehouseYDim);
     }
 
     public void btn_LoadWarehouse()
     {
-        SpreadsheetManager.Read(new GSTU_Search(associatedSheet, associatedWorksheet), ImportWarehouseData);
+        SpreadsheetManager.Read(new GSTU_Search(associatedSheet, warehouseItemsWorksheet), ImportWarehouseInventoryData);
+        SpreadsheetManager.Read(new GSTU_Search(associatedSheet, warehouseInfoWorksheet), LoadWarehouseInfo);
+
+        CreateWarehouseBounds();
+
+        AllCanvasTool.instance.EnableCanvas(defaultCanvasName, true);
     }
 
     public void btn_CreateNewWarehouse()
     {
+        warehouseXDim = float.Parse(warehouseXDimInput.text);
+        warehouseYDim = float.Parse(warehouseYDimInput.text);
 
+        SpreadsheetManager.Read(new GSTU_Search(associatedSheet, warehouseItemsWorksheet),
+            CreateWarehouseInfo);
+
+        CreateWarehouseBounds();
     }
 
     public void btn_AddNewItem()
     {
+        GameObject temp = Instantiate(blankWarehouseObjectPrefab);
+        temp.transform.localScale = new Vector2(float.Parse(boxXDimInput.text), float.Parse(boxYDimInput.text));
 
+        WarehouseObject tempWarehouseObject = temp.GetComponent<WarehouseObject>();
+
+        tempWarehouseObject.UUID = itemKeyInput.text;
+
+        objectsInWarehouse.Add(itemKeyInput.text, tempWarehouseObject);
+    }
+
+    public void btn_UploadWarehouseData()
+    {
+
+        List<List<string>> warehouseObjectImportList = new List<List<string>>();
+
+        foreach (KeyValuePair<string, WarehouseObject> pair in objectsInWarehouse)
+        {
+            List<string> temp = new List<string>()
+            {
+                pair.Value.UUID,
+                pair.Value.objTransform.position.ToString(),
+                pair.Value.objTransform.localScale.ToString()
+            };
+
+            warehouseObjectImportList.Add(temp);
+        }
+
+        SpreadsheetManager.Write(new GSTU_Search(associatedSheet,
+        warehouseItemsWorksheet, "A2"), new ValueRange(warehouseObjectImportList), null);
+    }
+
+    public void btn_ReturnToWarehouseCreationMenu()
+    {
+        AllCanvasTool.instance.EnableCanvas(warehouseCreationCanvasName, true);
+    }
+
+    public void btn_GoToObjectCreationMenu()
+    {
+        AllCanvasTool.instance.EnableCanvas(warehouseCreationCanvasName, true);
     }
 }
