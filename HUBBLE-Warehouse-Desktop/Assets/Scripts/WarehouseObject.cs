@@ -31,7 +31,7 @@ public class WarehouseObject : MonoBehaviour
     {
         if(held)
         {
-            Vector3 newpos = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, 10));
+            Vector3 newpos = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, 25.4f));
             objTransform.position = newpos;
         }
     }
