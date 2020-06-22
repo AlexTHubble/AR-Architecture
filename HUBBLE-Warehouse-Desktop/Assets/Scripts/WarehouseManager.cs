@@ -103,8 +103,8 @@ public class WarehouseManager : MonoBehaviour
 
     private void LoadWarehouseInfo(GstuSpreadSheet sheet)
     {
-        warehouseYDim = float.Parse(sheet["A2"].value);
-        warehouseXDim = float.Parse(sheet["B2"].value);
+        warehouseYDim = float.Parse(sheet["B2"].value);
+        warehouseXDim = float.Parse(sheet["A2"].value);
 
         CreateWarehouseBounds();
     }
@@ -180,5 +180,10 @@ public class WarehouseManager : MonoBehaviour
     public void btn_GoToObjectCreationMenu()
     {
         AllCanvasTool.instance.EnableCanvas(itemCreationCanvasName, true);
+    }
+
+    public void btn_GoToDefaultCanvas()
+    {
+        AllCanvasTool.instance.EnableCanvas(defaultCanvasName, true);
     }
 }
