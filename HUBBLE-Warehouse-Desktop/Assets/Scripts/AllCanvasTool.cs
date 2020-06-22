@@ -45,8 +45,10 @@ public class AllCanvasTool : MonoBehaviour
         foreach(Canvas canvas in enabledCanvas)
         {
             canvas.enabled = false;
-            enabledCanvas.Remove(canvas);
         }
+
+        //Clear the canvas
+        enabledCanvas.Clear();
     }
 
     public void DisableCanvas(string CanvasToDisable)

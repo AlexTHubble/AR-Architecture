@@ -14,11 +14,16 @@ public class WarehouseObject : MonoBehaviour
 
     bool held = false;
 
-    // Start is called before the first frame update
-    void Start()
+    private void Awake()
     {
         objTransform = transform;
         objCollider = gameObject.GetComponent<BoxCollider2D>();
+    }
+
+    // Start is called before the first frame update
+    void Start()
+    {
+
     }
 
     // Update is called once per frame

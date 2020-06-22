@@ -65,24 +65,30 @@ public class WarehouseManager : MonoBehaviour
     {
         foreach (var warehouseUUID in sheet.columns["UUID"])
         {
-            //Assign the position
-            string[] parsedPosValue = sheet[warehouseUUID.value, "Position"].value.Split(',', '(', ')');
+            if(warehouseUUID.value != "UUID")
+            {
+                //Assign the position
+                string[] parsedPosValue = sheet[warehouseUUID.value, "Position"].value.Split(',', ')', '(');
 
-            Vector3 pos = new Vector2(float.Parse(parsedPosValue[0]),
-                 float.Parse(parsedPosValue[1]));
+                string x = parsedPosValue[1];
+                string y = parsedPosValue[2];
 
-            WarehouseObject newObj = Instantiate(blankWarehouseObjectPrefab, pos, Quaternion.identity).GetComponent<WarehouseObject>();
+                Vector2 pos = new Vector2(float.Parse(x),
+                     float.Parse(y));
 
-            //Assign the UUID
-            newObj.UUID = warehouseUUID.value;
+                WarehouseObject newObj = Instantiate(blankWarehouseObjectPrefab, pos, Quaternion.identity).GetComponent<WarehouseObject>();
 
-            string[] parsedTransformValue = sheet[warehouseUUID.value, "Box Dim"].value.Split('x');
+                //Assign the UUID
+                newObj.UUID = warehouseUUID.value;
 
-            newObj.objTransform.localScale = new Vector2(float.Parse(parsedTransformValue[0]),
-                float.Parse(parsedTransformValue[1]));
+                string[] parsedTransformValue = sheet[warehouseUUID.value, "Box Dim"].value.Split(',', ')', '(');
 
-            //Add to the objects in warehouse dictionary
-            objectsInWarehouse.Add(warehouseUUID.value, newObj);
+                newObj.objTransform.localScale = new Vector2(float.Parse(parsedTransformValue[1]),
+                    float.Parse(parsedTransformValue[2]));
+
+                //Add to the objects in warehouse dictionary
+                objectsInWarehouse.Add(warehouseUUID.value, newObj);
+            }
         }
     }
 
@@ -153,8 +159,8 @@ public class WarehouseManager : MonoBehaviour
             List<string> temp = new List<string>()
             {
                 pair.Value.UUID,
-                pair.Value.objTransform.position.ToString(),
-                pair.Value.objTransform.localScale.ToString()
+                pair.Value.objTransform.localScale.ToString(),
+                pair.Value.objTransform.position.ToString()
             };
 
             warehouseObjectImportList.Add(temp);
