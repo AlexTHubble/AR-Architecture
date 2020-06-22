@@ -147,6 +147,8 @@ public class WarehouseManager : MonoBehaviour
         tempWarehouseObject.UUID = itemKeyInput.text;
 
         objectsInWarehouse.Add(itemKeyInput.text, tempWarehouseObject);
+
+        AllCanvasTool.instance.EnableCanvas(defaultCanvasName, true);
     }
 
     public void btn_UploadWarehouseData()
@@ -177,6 +179,6 @@ public class WarehouseManager : MonoBehaviour
 
     public void btn_GoToObjectCreationMenu()
     {
-        AllCanvasTool.instance.EnableCanvas(warehouseCreationCanvasName, true);
+        AllCanvasTool.instance.EnableCanvas(itemCreationCanvasName, true);
     }
 }
