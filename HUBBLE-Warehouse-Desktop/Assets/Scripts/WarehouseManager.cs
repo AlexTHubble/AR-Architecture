@@ -88,18 +88,19 @@ public class WarehouseManager : MonoBehaviour
 
     private void CreateWarehouseInfo(GstuSpreadSheet sheet)
     {
-        BatchRequestBody updateRequest = new BatchRequestBody();
+        SpreadsheetManager.Write(new GSTU_Search(associatedSheet, warehouseInfoWorksheet,
+            "A2"), new ValueRange(warehouseXDim.ToString()), null);
 
-        updateRequest.Add(sheet["A2"].AddCellToBatchUpdate(associatedSheet, warehouseInfoWorksheet, warehouseXDim.ToString()));
-        updateRequest.Add(sheet["B2"].AddCellToBatchUpdate(associatedSheet, warehouseInfoWorksheet, warehouseYDim.ToString()));
-
-        updateRequest.Send(associatedSheet, warehouseInfoWorksheet, null);
+        SpreadsheetManager.Write(new GSTU_Search(associatedSheet, warehouseInfoWorksheet,
+            "B2"), new ValueRange(warehouseYDim.ToString()), null);
     }
 
     private void LoadWarehouseInfo(GstuSpreadSheet sheet)
     {
         warehouseYDim = float.Parse(sheet["A2"].value);
         warehouseXDim = float.Parse(sheet["B2"].value);
+
+        CreateWarehouseBounds();
     }
 
     private void CreateWarehouseBounds()
@@ -113,8 +114,6 @@ public class WarehouseManager : MonoBehaviour
         SpreadsheetManager.Read(new GSTU_Search(associatedSheet, warehouseItemsWorksheet), ImportWarehouseInventoryData);
         SpreadsheetManager.Read(new GSTU_Search(associatedSheet, warehouseInfoWorksheet), LoadWarehouseInfo);
 
-        CreateWarehouseBounds();
-
         AllCanvasTool.instance.EnableCanvas(defaultCanvasName, true);
     }
 
@@ -127,6 +126,9 @@ public class WarehouseManager : MonoBehaviour
             CreateWarehouseInfo);
 
         CreateWarehouseBounds();
+
+        AllCanvasTool.instance.EnableCanvas(defaultCanvasName, true);
+
     }
 
     public void btn_AddNewItem()
