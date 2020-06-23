@@ -5,6 +5,9 @@ using UnityEngine.SceneManagement;
 
 public class WarehouseObject : MonoBehaviour
 {
+    [SerializeField]
+    Canvas objectUI;
+
     [HideInInspector]
     public string UUID;
     [HideInInspector]
@@ -13,6 +16,7 @@ public class WarehouseObject : MonoBehaviour
     private BoxCollider2D objCollider;
 
     bool held = false;
+    bool selected = false;
 
     private void Awake()
     {
@@ -39,10 +43,27 @@ public class WarehouseObject : MonoBehaviour
     void OnMouseDown()
     {
         held = true;
+
+        if (selected)
+        {
+            selected = false;
+            //WarehouseManager.instance.SetWarehouseObjectToUpdate(null);
+            WarehouseManager.instance.btn_GoToDefaultCanvas();
+        }
+        else
+        {
+            selected = true;
+            WarehouseManager.instance.SetWarehouseObjectToUpdate(this);
+        }
     }
 
     void OnMouseUp()
     {
         held = false;
+    }
+
+    public void ToggleSelected(bool inBool)
+    {
+        selected = inBool;
     }
 }

@@ -8,6 +8,9 @@ using TMPro;
 
 public class WarehouseManager : MonoBehaviour
 {
+    public static WarehouseManager instance = null;
+
+
     [SerializeField]
     GameObject blankWarehouseObjectPrefab;
 
@@ -30,6 +33,12 @@ public class WarehouseManager : MonoBehaviour
     TMP_InputField boxYDimInput;
     [SerializeField]
     TMP_InputField itemKeyInput;
+    [SerializeField]
+    TMP_InputField updateUUIDInput;
+    [SerializeField]
+    TMP_InputField updateBoxXDimInput;
+    [SerializeField]
+    TMP_InputField updateBoxYDimInput;
 
     [Header("Canvas used")]
     [SerializeField]
@@ -38,6 +47,8 @@ public class WarehouseManager : MonoBehaviour
     string itemCreationCanvasName;
     [SerializeField]
     string warehouseCreationCanvasName;
+    [SerializeField]
+    string itemUpdateCanvasName;
 
     [HideInInspector]
     public string associatedSheet = "1sU_NTS7lvoqh7xFopYs5qJbZ5iG79CevaVdwUh6-DQw";
@@ -47,12 +58,16 @@ public class WarehouseManager : MonoBehaviour
     public string warehouseInfoWorksheet = "Warehouse Info";
 
     float warehouseXDim, warehouseYDim;
+    WarehouseObject objToUpdate;
 
 
     // Start is called before the first frame update
     void Start()
     {
-        
+        if (instance == null)
+            instance = this;
+        else if (instance != this)
+            Destroy(gameObject);
     }
 
     // Update is called once per frame
@@ -109,10 +124,94 @@ public class WarehouseManager : MonoBehaviour
         CreateWarehouseBounds();
     }
 
+    private void UpdateInvidualObjectBoxDim(GstuSpreadSheet sheet)
+    {
+        BatchRequestBody updateRequest = new BatchRequestBody();
+
+        //Update the obj's scale in scene
+        objToUpdate.objTransform.localScale = new Vector2(float.Parse(boxXDimInput.text), float.Parse(boxYDimInput.text));
+
+        updateRequest.Add(sheet[objToUpdate.UUID, "Box Dim"].AddCellToBatchUpdate(associatedSheet, warehouseItemsWorksheet,
+            objToUpdate.objTransform.localScale.ToString()));
+
+        updateRequest.Send(associatedSheet, warehouseItemsWorksheet, null);
+    }
+
+    private void UpdateIndvidualObjectUUID(GstuSpreadSheet sheet)
+    {
+        BatchRequestBody updateRequest = new BatchRequestBody();
+
+        updateRequest.Add(sheet[objToUpdate.UUID, "UUID"].AddCellToBatchUpdate(associatedSheet, warehouseItemsWorksheet,
+            itemKeyInput.text));
+
+        objectsInWarehouse.Remove(objToUpdate.UUID);
+        objectsInWarehouse.Add(itemKeyInput.text, objToUpdate);
+
+        objToUpdate.UUID = itemKeyInput.text;
+
+        updateRequest.Send(associatedSheet, warehouseItemsWorksheet, null);
+    }
+
+    private void UpdateWarehouseData(GstuSpreadSheet sheet)
+    {
+        //Begin wiping old data--------------------------------------------------------------------------------------------------
+        BatchRequestBody updateRequest = new BatchRequestBody();
+
+        foreach (var warehouseUUID in sheet.columns["UUID"])
+        {
+            if(warehouseUUID.value != "UUID")
+            {
+                updateRequest.Add(sheet[warehouseUUID.value, "Box Dim"].AddCellToBatchUpdate(associatedSheet, warehouseItemsWorksheet,
+                ""));
+                updateRequest.Add(sheet[warehouseUUID.value, "Position"].AddCellToBatchUpdate(associatedSheet, warehouseItemsWorksheet,
+                ""));
+                updateRequest.Add(sheet[warehouseUUID.value, "UUID"].AddCellToBatchUpdate(associatedSheet, warehouseItemsWorksheet,
+                ""));
+            }
+
+        }
+
+        updateRequest.Send(associatedSheet, warehouseItemsWorksheet, null);
+        //End wiping old data-------------------------------------------------------------------------------------------------------
+
+        //Begin importing new data--------------------------------------------------------------------------------------------------
+        List<List<string>> warehouseObjectImportList = new List<List<string>>();
+
+        foreach (KeyValuePair<string, WarehouseObject> pair in objectsInWarehouse)
+        {
+            List<string> temp = new List<string>()
+            {
+                pair.Value.UUID,
+                pair.Value.objTransform.localScale.ToString(),
+                pair.Value.objTransform.position.ToString()
+            };
+
+            warehouseObjectImportList.Add(temp);
+        }
+
+        SpreadsheetManager.Write(new GSTU_Search(associatedSheet,
+        warehouseItemsWorksheet, "A2"), new ValueRange(warehouseObjectImportList), null);
+        //End importing new data----------------------------------------------------------------------------------------------------
+
+    }
+
     private void CreateWarehouseBounds()
     {
         currentWarehouseObject = Instantiate(warehousePrefab);
         currentWarehouseObject.transform.localScale = new Vector2(warehouseXDim, warehouseYDim);
+    }
+
+    public void SetWarehouseObjectToUpdate(WarehouseObject objIn)
+    {
+        if (objToUpdate && objToUpdate != objIn)
+            objToUpdate.ToggleSelected(false);
+
+        objToUpdate = objIn;
+        AllCanvasTool.instance.EnableCanvas(itemUpdateCanvasName, true);
+
+        updateBoxXDimInput.text = objToUpdate.objTransform.localScale.x.ToString();
+        updateBoxYDimInput.text = objToUpdate.objTransform.localScale.y.ToString();
+        updateUUIDInput.text = objToUpdate.UUID;
     }
 
     public void btn_LoadWarehouse()
@@ -153,23 +252,7 @@ public class WarehouseManager : MonoBehaviour
 
     public void btn_UploadWarehouseData()
     {
-
-        List<List<string>> warehouseObjectImportList = new List<List<string>>();
-
-        foreach (KeyValuePair<string, WarehouseObject> pair in objectsInWarehouse)
-        {
-            List<string> temp = new List<string>()
-            {
-                pair.Value.UUID,
-                pair.Value.objTransform.localScale.ToString(),
-                pair.Value.objTransform.position.ToString()
-            };
-
-            warehouseObjectImportList.Add(temp);
-        }
-
-        SpreadsheetManager.Write(new GSTU_Search(associatedSheet,
-        warehouseItemsWorksheet, "A2"), new ValueRange(warehouseObjectImportList), null);
+        SpreadsheetManager.Read(new GSTU_Search(associatedSheet, warehouseItemsWorksheet), UpdateWarehouseData);
     }
 
     public void btn_ReturnToWarehouseCreationMenu()
@@ -185,5 +268,27 @@ public class WarehouseManager : MonoBehaviour
     public void btn_GoToDefaultCanvas()
     {
         AllCanvasTool.instance.EnableCanvas(defaultCanvasName, true);
+
+        if (objToUpdate)
+            objToUpdate.ToggleSelected(false);
+    }
+
+    public void btn_UpdateObjectUUID()
+    {
+        SpreadsheetManager.Read(new GSTU_Search(associatedSheet, warehouseItemsWorksheet), UpdateIndvidualObjectUUID);
+    }
+
+    public void btn_UpdateObjectBounds()
+    {
+        SpreadsheetManager.Read(new GSTU_Search(associatedSheet, warehouseItemsWorksheet), UpdateInvidualObjectBoxDim);
+    }
+
+    public void btn_DeleteObj()
+    {
+        objectsInWarehouse.Remove(objToUpdate.UUID);
+        GameObject.Destroy(objToUpdate.gameObject);
+        objToUpdate = null;
+
+        btn_GoToDefaultCanvas();
     }
 }
