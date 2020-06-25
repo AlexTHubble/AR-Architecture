@@ -78,6 +78,8 @@ public class WarehouseManager : MonoBehaviour
 
     private void ImportWarehouseInventoryData(GstuSpreadSheet sheet)
     {
+
+
         foreach (var warehouseUUID in sheet.columns["UUID"])
         {
             if(warehouseUUID.value != "UUID")
@@ -197,8 +199,22 @@ public class WarehouseManager : MonoBehaviour
 
     private void CreateWarehouseBounds()
     {
+        if (currentWarehouseObject != null)
+            Destroy(currentWarehouseObject);
+
         currentWarehouseObject = Instantiate(warehousePrefab);
         currentWarehouseObject.transform.localScale = new Vector2(warehouseXDim, warehouseYDim);
+    }
+
+    private void DestroyAllWarehouseObjects()
+    {
+        //Clear the previous list
+        foreach (KeyValuePair<string, WarehouseObject> entry in objectsInWarehouse)
+        {
+            Destroy(entry.Value.gameObject);
+        }
+
+        objectsInWarehouse.Clear();
     }
 
     public void SetWarehouseObjectToUpdate(WarehouseObject objIn)
@@ -216,6 +232,8 @@ public class WarehouseManager : MonoBehaviour
 
     public void btn_LoadWarehouse()
     {
+        DestroyAllWarehouseObjects();
+
         SpreadsheetManager.Read(new GSTU_Search(associatedSheet, warehouseItemsWorksheet), ImportWarehouseInventoryData);
         SpreadsheetManager.Read(new GSTU_Search(associatedSheet, warehouseInfoWorksheet), LoadWarehouseInfo);
 
@@ -224,6 +242,8 @@ public class WarehouseManager : MonoBehaviour
 
     public void btn_CreateNewWarehouse()
     {
+        DestroyAllWarehouseObjects();
+
         warehouseXDim = float.Parse(warehouseXDimInput.text);
         warehouseYDim = float.Parse(warehouseYDimInput.text);
 
