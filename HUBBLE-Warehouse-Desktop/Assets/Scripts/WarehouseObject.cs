@@ -15,6 +15,8 @@ public class WarehouseObject : MonoBehaviour
 
     private BoxCollider2D objCollider;
 
+    Transform camTransform;
+
     bool held = false;
     bool selected = false;
 
@@ -27,7 +29,7 @@ public class WarehouseObject : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-
+        camTransform = Camera.main.transform;
     }
 
     // Update is called once per frame
@@ -35,7 +37,9 @@ public class WarehouseObject : MonoBehaviour
     {
         if(held)
         {
-            Vector3 newpos = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, 25.4f));
+            Vector3 newpos = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, 
+                Input.mousePosition.y, (camTransform.position.z * -1f)));
+
             objTransform.position = newpos;
         }
     }

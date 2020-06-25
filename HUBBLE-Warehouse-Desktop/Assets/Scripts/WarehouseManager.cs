@@ -10,7 +10,6 @@ public class WarehouseManager : MonoBehaviour
 {
     public static WarehouseManager instance = null;
 
-
     [SerializeField]
     GameObject blankWarehouseObjectPrefab;
 
@@ -70,16 +69,8 @@ public class WarehouseManager : MonoBehaviour
             Destroy(gameObject);
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
     private void ImportWarehouseInventoryData(GstuSpreadSheet sheet)
     {
-
-
         foreach (var warehouseUUID in sheet.columns["UUID"])
         {
             if(warehouseUUID.value != "UUID")
@@ -170,7 +161,6 @@ public class WarehouseManager : MonoBehaviour
                 updateRequest.Add(sheet[warehouseUUID.value, "UUID"].AddCellToBatchUpdate(associatedSheet, warehouseItemsWorksheet,
                 ""));
             }
-
         }
 
         updateRequest.Send(associatedSheet, warehouseItemsWorksheet, null);
@@ -194,7 +184,6 @@ public class WarehouseManager : MonoBehaviour
         SpreadsheetManager.Write(new GSTU_Search(associatedSheet,
         warehouseItemsWorksheet, "A2"), new ValueRange(warehouseObjectImportList), null);
         //End importing new data----------------------------------------------------------------------------------------------------
-
     }
 
     private void CreateWarehouseBounds()
