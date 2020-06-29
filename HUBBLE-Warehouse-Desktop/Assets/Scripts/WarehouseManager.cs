@@ -16,9 +16,13 @@ public class WarehouseManager : MonoBehaviour
     [SerializeField]
     GameObject warehousePrefab;
 
+    [SerializeField]
+    GameObject startingLocationPrefab;
+
     Vector3 warehouseDimensions;
     Vector3 startingLocation;
     GameObject currentWarehouseObject;
+    Transform currentStartingLocationTransform;
 
     Dictionary<string, WarehouseObject> objectsInWarehouse = new Dictionary<string, WarehouseObject>();
 
@@ -299,5 +303,10 @@ public class WarehouseManager : MonoBehaviour
         objToUpdate = null;
 
         btn_GoToDefaultCanvas();
+    }
+
+    public void btn_SetStartingLocation()
+    {
+        
     }
 }

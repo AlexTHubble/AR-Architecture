@@ -18,15 +18,15 @@ public class WarehouseObject : ARInteractableObject
     internal override void OnSelect()
     {
         base.OnSelect();
-
-        operationsCanvas.enabled = true;
+        
+        //operationsCanvas.enabled = true;
     }
 
     internal override void OnDeselect()
     {
         base.OnDeselect();
 
-        operationsCanvas.enabled = false;
+        //operationsCanvas.enabled = false;
     }
 
     public void DisplayDescription(TextMesh display)
