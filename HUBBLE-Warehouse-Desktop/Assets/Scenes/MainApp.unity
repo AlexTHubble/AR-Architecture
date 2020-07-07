@@ -3611,6 +3611,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   blankWarehouseObjectPrefab: {fileID: 2216951722687812749, guid: 76f98ac484143c14fb732cad41ffafea, type: 3}
   warehousePrefab: {fileID: 4622713187236033960, guid: 6a21e02bc8204de4e81a8b82317768b0, type: 3}
+  startingLocationPrefab: {fileID: 0}
   warehouseXDimInput: {fileID: 568215385}
   warehouseYDimInput: {fileID: 576841280}
   boxXDimInput: {fileID: 20495465}

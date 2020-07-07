@@ -4,6 +4,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using GoogleSheetsToUnity;
 using GoogleSheetsToUnity.ThirdPary;
+using UnityEngine.XR.ARFoundation;
+using UnityEngine.XR.ARSubsystems;
 
 public class WarehouseManager : MonoBehaviour
 {
@@ -11,12 +13,13 @@ public class WarehouseManager : MonoBehaviour
     GameObject blankWarehouseObjectPrefab;
     [SerializeField]
     Transform camTranform;
+    [SerializeField]
+    ARAnchorManager anchorManager;
 
     Vector3 warehouseDimensions;
 
     Dictionary<string, WarehouseObject> objectsInWarehouse = new Dictionary<string, WarehouseObject>();
     WarehouseObject foundObject;
-
     Canvas defaultCanvas;
     InputField ui_uuidInput;
 
@@ -41,7 +44,6 @@ public class WarehouseManager : MonoBehaviour
 
     private void ImportWarehouseInventoryData(GstuSpreadSheet sheet)
     {
-
         foreach (var warehouseUUID in sheet.columns["UUID"])
         {
             if (warehouseUUID.value != "UUID")
@@ -56,15 +58,18 @@ public class WarehouseManager : MonoBehaviour
                 string z = parsedPosValue[2];
 
                 //Translation 1, move the objects to the new center defined by the starting location
-                Vector3 pos = new Vector3((float.Parse(x) - startingLocation.x),
+                Vector3 worldPosition = new Vector3((float.Parse(x) - startingLocation.x),
                      0.0f, (float.Parse(z) - startingLocation.y));
 
                 //Translation 2, move the objects by the current transform position to account for the camera not being at 0,0
-                pos = new Vector3(pos.x + camTranform.position.x, 0.0f, pos.z + camTranform.position.z);
+                worldPosition = new Vector3(worldPosition.x + camTranform.position.x, 0.0f, worldPosition.z + camTranform.position.z);
 
-                OnScreenDebugLogger.instance.LogOnscreen("Object " + warehouseUUID.value + " at " + pos.ToString());
+                OnScreenDebugLogger.instance.LogOnscreen("Object " + warehouseUUID.value + " at " + worldPosition.ToString());
 
-                WarehouseObject newObj = Instantiate(blankWarehouseObjectPrefab, pos, Quaternion.identity).GetComponent<WarehouseObject>();
+                Pose pos = new Pose(worldPosition, Quaternion.identity);
+                ARAnchor anchor = anchorManager.AddAnchor(pos);
+
+                //WarehouseObject newObj = Instantiate(blankWarehouseObjectPrefab, pos, Quaternion.identity).GetComponent<WarehouseObject>();
 
                 //Assign the UUID
                 //newObj.UUID = warehouseUUID.value;

@@ -19,10 +19,11 @@ public class WarehouseManager : MonoBehaviour
     [SerializeField]
     GameObject startingLocationPrefab;
 
+    StartingPointScript currentStartingpointObject;
+
     Vector3 warehouseDimensions;
     Vector3 startingLocation;
     GameObject currentWarehouseObject;
-    Transform currentStartingLocationTransform;
 
     Dictionary<string, WarehouseObject> objectsInWarehouse = new Dictionary<string, WarehouseObject>();
 
@@ -62,6 +63,7 @@ public class WarehouseManager : MonoBehaviour
 
     float warehouseXDim, warehouseYDim;
     WarehouseObject objToUpdate;
+
 
 
     // Start is called before the first frame update
@@ -177,7 +179,7 @@ public class WarehouseManager : MonoBehaviour
         {
             List<string> temp = new List<string>()
             {
-                pair.Value.UUID,
+                pair.Value.UUID, 
                 pair.Value.objTransform.localScale.ToString(),
                 pair.Value.objTransform.position.ToString()
             };
@@ -185,8 +187,13 @@ public class WarehouseManager : MonoBehaviour
             warehouseObjectImportList.Add(temp);
         }
 
+        //Write the new data
         SpreadsheetManager.Write(new GSTU_Search(associatedSheet,
-        warehouseItemsWorksheet, "A2"), new ValueRange(warehouseObjectImportList), null);
+            warehouseItemsWorksheet, "A2"), new ValueRange(warehouseObjectImportList), null);
+
+        //Write the starting location
+        SpreadsheetManager.Write(new GSTU_Search(associatedSheet,
+            warehouseInfoWorksheet, "C2"), new ValueRange(currentStartingpointObject.transform.position.ToString()), null);
         //End importing new data----------------------------------------------------------------------------------------------------
     }
 
@@ -210,6 +217,25 @@ public class WarehouseManager : MonoBehaviour
         objectsInWarehouse.Clear();
     }
 
+    private void LoadStartingLocation(GstuSpreadSheet sheet)
+    {
+        if (sheet["C2"].value != "")
+        {
+            string[] parsedTransformValue = sheet["C2"].value.Split(',', ')', '(');
+
+            currentStartingpointObject = Instantiate(startingLocationPrefab, new Vector2(float.Parse(parsedTransformValue[1]),
+                float.Parse(parsedTransformValue[2])), Quaternion.identity).GetComponent<StartingPointScript>();
+        }
+        else
+        {
+            currentStartingpointObject = Instantiate(startingLocationPrefab, new Vector2(0,
+               0), Quaternion.identity).GetComponent<StartingPointScript>();
+
+            SpreadsheetManager.Write(new GSTU_Search(associatedSheet,
+                warehouseInfoWorksheet, "C2"), new ValueRange(currentStartingpointObject.transform.position.ToString()), null);
+        }
+    }
+
     public void SetWarehouseObjectToUpdate(WarehouseObject objIn)
     {
         if (objToUpdate && objToUpdate != objIn)
@@ -229,6 +255,7 @@ public class WarehouseManager : MonoBehaviour
 
         SpreadsheetManager.Read(new GSTU_Search(associatedSheet, warehouseItemsWorksheet), ImportWarehouseInventoryData);
         SpreadsheetManager.Read(new GSTU_Search(associatedSheet, warehouseInfoWorksheet), LoadWarehouseInfo);
+        SpreadsheetManager.Read(new GSTU_Search(associatedSheet, warehouseItemsWorksheet), LoadStartingLocation);
 
         AllCanvasTool.instance.EnableCanvas(defaultCanvasName, true);
     }
@@ -240,8 +267,8 @@ public class WarehouseManager : MonoBehaviour
         warehouseXDim = float.Parse(warehouseXDimInput.text);
         warehouseYDim = float.Parse(warehouseYDimInput.text);
 
-        SpreadsheetManager.Read(new GSTU_Search(associatedSheet, warehouseItemsWorksheet),
-            CreateWarehouseInfo);
+        SpreadsheetManager.Read(new GSTU_Search(associatedSheet, warehouseItemsWorksheet), CreateWarehouseInfo);
+        SpreadsheetManager.Read(new GSTU_Search(associatedSheet, warehouseItemsWorksheet), LoadStartingLocation);
 
         CreateWarehouseBounds();
 
@@ -303,10 +330,5 @@ public class WarehouseManager : MonoBehaviour
         objToUpdate = null;
 
         btn_GoToDefaultCanvas();
-    }
-
-    public void btn_SetStartingLocation()
-    {
-        
     }
 }

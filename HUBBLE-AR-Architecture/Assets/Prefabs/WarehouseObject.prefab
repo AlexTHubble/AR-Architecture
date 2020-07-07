@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 2477374147867398519}
   - component: {fileID: 7369193606382512108}
   - component: {fileID: 4395249195376322010}
+  - component: {fileID: -7947371128978086175}
   m_Layer: 0
   m_Name: WarehouseObject
   m_TagString: Untagged
@@ -113,3 +114,16 @@ MonoBehaviour:
   objectMR: {fileID: 0}
   UUID: 4444
   operationsCanvas: {fileID: 0}
+--- !u!114 &-7947371128978086175
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2862208955798767513}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eb898793194e03f4bb10dba03ec2cb70, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_DestroyOnRemoval: 1
