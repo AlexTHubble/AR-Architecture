@@ -16,8 +16,6 @@ public class WarehouseManager : MonoBehaviour
     [SerializeField]
     ARAnchorManager anchorManager;
 
-    Vector3 warehouseDimensions;
-
     Dictionary<string, WarehouseObject> objectsInWarehouse = new Dictionary<string, WarehouseObject>();
     WarehouseObject foundObject;
     Canvas defaultCanvas;
@@ -27,6 +25,8 @@ public class WarehouseManager : MonoBehaviour
     public string associatedSheet = "1sU_NTS7lvoqh7xFopYs5qJbZ5iG79CevaVdwUh6-DQw";
     [HideInInspector]
     public string warehouseItemsWorksheet = "Warehouse Items";
+    [HideInInspector]
+    public string warehouseInfoWorksheet = "Warehouse Info";
 
     Vector3 startingLocation = new Vector3(0, 0, 0);
 
@@ -44,6 +44,9 @@ public class WarehouseManager : MonoBehaviour
 
     private void ImportWarehouseInventoryData(GstuSpreadSheet sheet)
     {
+        OnScreenDebugLogger.instance.LogOnscreen("Import call");
+
+
         foreach (var warehouseUUID in sheet.columns["UUID"])
         {
             if (warehouseUUID.value != "UUID")
@@ -69,29 +72,46 @@ public class WarehouseManager : MonoBehaviour
                 Pose pos = new Pose(worldPosition, Quaternion.identity);
                 ARAnchor anchor = anchorManager.AddAnchor(pos);
 
-                //WarehouseObject newObj = Instantiate(blankWarehouseObjectPrefab, pos, Quaternion.identity).GetComponent<WarehouseObject>();
+                WarehouseObject newObj = anchor.gameObject.GetComponent<WarehouseObject>();
 
                 //Assign the UUID
-                //newObj.UUID = warehouseUUID.value;
+                newObj.UUID = warehouseUUID.value;
 
-                //string[] parsedTransformValue = sheet[warehouseUUID.value, "Box Dim"].value.Split(',', ')', '(');
-                //
-                //newObj.objTransform.localScale = new Vector2(float.Parse(parsedTransformValue[1]),
-                //    float.Parse(parsedTransformValue[2]));
+                string[] parsedTransformValue = sheet[warehouseUUID.value, "Box Dim"].value.Split(',', ')', '(');
+                
+                newObj.gameObject.transform.localScale = new Vector3(float.Parse(parsedTransformValue[1]),
+                    float.Parse(parsedTransformValue[2]), 1.0f);
 
-                //OnScreenDebugLogger.instance.LogOnscreen("Finished scaling object " + warehouseUUID.value);
-                //
-                ////Add to the objects in warehouse dictionary
-                //objectsInWarehouse.Add(warehouseUUID.value, newObj);
-                //
-                //OnScreenDebugLogger.instance.LogOnscreen("Finished spawning obj " + warehouseUUID.value);
+                
+                //Add to the objects in warehouse dictionary
+                objectsInWarehouse.Add(warehouseUUID.value, newObj);
+                
             }
         }
+    }
+
+    private void LoadStartingLocation(GstuSpreadSheet sheet)
+    {
+        if (sheet["C2"].value != "")
+        {
+            string[] parsedTransformValue = sheet["C2"].value.Split(',', ')', '(');
+
+            startingLocation = new Vector3(float.Parse(parsedTransformValue[1]), float.Parse(parsedTransformValue[2]), 0.0f);
+        }
+        else
+        {
+            startingLocation = Vector3.zero;
+
+            OnScreenDebugLogger.instance.LogOnscreen("ERROR, NO STARTING LOCATION FOUND");
+            OnScreenDebugLogger.instance.LogOnscreen("Setting start location to (0,0,0)");
+        }
+        OnScreenDebugLogger.instance.LogOnscreen("Starting location call");
     }
 
     public void btn_LoadWarehouse()
     {
         SpreadsheetManager.Read(new GSTU_Search(associatedSheet, warehouseItemsWorksheet), ImportWarehouseInventoryData);
+        SpreadsheetManager.Read(new GSTU_Search(associatedSheet, warehouseInfoWorksheet), LoadStartingLocation);
     }
 
 }
