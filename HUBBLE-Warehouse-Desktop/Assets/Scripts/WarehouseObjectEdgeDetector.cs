@@ -16,7 +16,7 @@ public class WarehouseObjectEdgeDetector : MonoBehaviour
     {
         //Returns true if the sprite rendere has been disabled (more of a safty precaution)
         if (!spRenderer.enabled)
-            return true;
+            return false;
 
         return spRenderer.isVisible;
     }

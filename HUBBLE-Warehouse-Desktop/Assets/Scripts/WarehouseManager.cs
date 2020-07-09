@@ -22,7 +22,6 @@ public class WarehouseManager : MonoBehaviour
     StartingPointScript currentStartingpointObject;
 
     Vector3 warehouseDimensions;
-    Vector3 startingLocation;
     GameObject currentWarehouseObject;
 
     Dictionary<string, WarehouseObject> objectsInWarehouse = new Dictionary<string, WarehouseObject>();
@@ -204,6 +203,7 @@ public class WarehouseManager : MonoBehaviour
 
         currentWarehouseObject = Instantiate(warehousePrefab);
         currentWarehouseObject.transform.localScale = new Vector2(warehouseXDim, warehouseYDim);
+        currentWarehouseObject.transform.position = new Vector3(0, 0, 0);
     }
 
     private void DestroyAllWarehouseObjects()
@@ -215,6 +215,12 @@ public class WarehouseManager : MonoBehaviour
         }
 
         objectsInWarehouse.Clear();
+        if(currentStartingpointObject != null)
+        {
+            Destroy(currentStartingpointObject.gameObject);
+            currentStartingpointObject = null;
+        }
+
     }
 
     private void LoadStartingLocation(GstuSpreadSheet sheet)
