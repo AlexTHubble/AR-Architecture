@@ -492,7 +492,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 52313716}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: -25.4}
+  m_LocalPosition: {x: 0, y: 0, z: -25.4}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -3611,7 +3611,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   blankWarehouseObjectPrefab: {fileID: 2216951722687812749, guid: 76f98ac484143c14fb732cad41ffafea, type: 3}
   warehousePrefab: {fileID: 4622713187236033960, guid: 6a21e02bc8204de4e81a8b82317768b0, type: 3}
-  startingLocationPrefab: {fileID: 0}
+  startingLocationPrefab: {fileID: 2279279246451018936, guid: c38a11ed45218d3469b55b8cae14486f, type: 3}
   warehouseXDimInput: {fileID: 568215385}
   warehouseYDimInput: {fileID: 576841280}
   boxXDimInput: {fileID: 20495465}

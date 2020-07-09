@@ -295,7 +295,7 @@ MonoBehaviour:
   - {fileID: 1808834456570717848}
   - {fileID: 7995308960831770215}
   cameraZStartPos: -25.4
-  cameraMoveSpeed: -10
+  cameraMoveSpeed: 5
 --- !u!1 &7210961876774285687
 GameObject:
   m_ObjectHideFlags: 0
