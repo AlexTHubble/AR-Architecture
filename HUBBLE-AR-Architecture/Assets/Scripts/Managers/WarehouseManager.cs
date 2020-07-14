@@ -6,6 +6,7 @@ using GoogleSheetsToUnity;
 using GoogleSheetsToUnity.ThirdPary;
 using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
+using TMPro;
 
 public class WarehouseManager : MonoBehaviour
 {
@@ -15,10 +16,17 @@ public class WarehouseManager : MonoBehaviour
     Transform camTranform;
     [SerializeField]
     ARAnchorManager anchorManager;
+    [SerializeField]
+    TMP_InputField objUUIDInput;
+    [SerializeField]
+    Canvas defaultCanvas;
+    [SerializeField]
+    Canvas searchCanvas;
+    [SerializeField]
+    Transform arrowTransform;
 
     Dictionary<string, WarehouseObject> objectsInWarehouse = new Dictionary<string, WarehouseObject>();
-    WarehouseObject foundObject;
-    Canvas defaultCanvas;
+    WarehouseObject activeWarehouseObject;
     InputField ui_uuidInput;
 
     [HideInInspector]
@@ -39,13 +47,15 @@ public class WarehouseManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if (activeWarehouseObject != null)
+        {
+            //Rotate the y axis of the arrow towards the active object
+            arrowTransform.LookAt(activeWarehouseObject.objTransform); //Look at teh transform of the active object
+        }
     }
 
     private void ImportWarehouseInventoryData(GstuSpreadSheet sheet)
     {
-        OnScreenDebugLogger.instance.LogOnscreen("Import call");
-
 
         foreach (var warehouseUUID in sheet.columns["UUID"])
         {
@@ -81,7 +91,6 @@ public class WarehouseManager : MonoBehaviour
                 
                 newObj.gameObject.transform.localScale = new Vector3(float.Parse(parsedTransformValue[1]),
                     float.Parse(parsedTransformValue[2]), 1.0f);
-
                 
                 //Add to the objects in warehouse dictionary
                 objectsInWarehouse.Add(warehouseUUID.value, newObj);
@@ -102,10 +111,26 @@ public class WarehouseManager : MonoBehaviour
         {
             startingLocation = Vector3.zero;
 
-            OnScreenDebugLogger.instance.LogOnscreen("ERROR, NO STARTING LOCATION FOUND");
+            OnScreenDebugLogger.instance.LogOnscreen("ERROR: NO STARTING LOCATION FOUND");
             OnScreenDebugLogger.instance.LogOnscreen("Setting start location to (0,0,0)");
         }
         OnScreenDebugLogger.instance.LogOnscreen("Starting location call");
+    }
+
+    private void HideAllObjects()
+    {
+        foreach (KeyValuePair<string, WarehouseObject> pair in objectsInWarehouse)
+        {
+            pair.Value.HideObject();
+        }
+    }
+
+    private void ShowAllObjects()
+    {
+        foreach(KeyValuePair<string, WarehouseObject> pair in objectsInWarehouse)
+        {
+            pair.Value.DisplayObject();
+        }
     }
 
     public void btn_LoadWarehouse()
@@ -114,4 +139,35 @@ public class WarehouseManager : MonoBehaviour
         SpreadsheetManager.Read(new GSTU_Search(associatedSheet, warehouseInfoWorksheet), LoadStartingLocation);
     }
 
+    public void btn_FindUUID()
+    {
+        //Select a warehouse object to be searched for
+        //Open up search UI
+        string uuidToFind = objUUIDInput.text;
+        HideAllObjects();
+
+        defaultCanvas.enabled = false;
+        searchCanvas.enabled = true;
+        arrowTransform.gameObject.SetActive(true);
+
+        if(objectsInWarehouse.ContainsKey(uuidToFind))
+        {
+            activeWarehouseObject = objectsInWarehouse[uuidToFind]; //Sets the warehouse object
+            activeWarehouseObject.DisplayObject();
+        }
+        else
+        {
+            //Failed search
+            OnScreenDebugLogger.instance.LogOnscreen("ERROR: UUID NOT FOUND");
+        }
+    }
+
+    public void btn_EndSearch()
+    {
+        ShowAllObjects();
+        arrowTransform.gameObject.SetActive(false);
+        activeWarehouseObject = null;
+        defaultCanvas.enabled = true;
+        searchCanvas.enabled = false;
+    }
 }
